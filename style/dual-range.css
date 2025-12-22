@@ -1,0 +1,75 @@
+.slider {
+  position: relative;
+  width: 100%;
+  height: 36px;
+}
+
+.slider input[type="range"] {
+  position: absolute;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 36px;
+  background: none;
+}
+
+/* ✅ 기본 트랙을 투명 처리(두 줄 방지) */
+.slider input::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+}
+.slider input::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* ✅ 0x0 금지: 투명하지만 잡히는 thumb */
+.slider input::-webkit-slider-thumb {
+  pointer-events: all;
+  width: 24px;
+  height: 24px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: none;
+}
+.slider input::-moz-range-thumb {
+  pointer-events: all;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+}
+
+.track {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+.range {
+  position: absolute;
+  height: 100%;
+  background: rgba(37, 99, 235, 0.45);
+  border-radius: 999px;
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border: 2px solid #2563eb;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.thumb.right {
+  transform: translate(50%, -50%);
+}
