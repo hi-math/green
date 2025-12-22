@@ -3,7 +3,9 @@
 
 import { useState } from "react";
 import AppShell from "@/components/AppShell";
+import DashboardTopPanel from "@/components/dashboard/DashboardTopPanel";
 import EnergyGrid from "@/components/dashboard/EnergyGrid";
+import DomainCardsRow from "@/components/dashboard/DomainCardsRow";
 import MetricModal from "@/components/dashboard/MetricModal";
 import type { MetricKey } from "@/components/dashboard/types";
 
@@ -18,7 +20,12 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <EnergyGrid onSelect={openMetric} />
+      <DashboardTopPanel>
+        <EnergyGrid onSelect={openMetric} />
+      </DashboardTopPanel>
+
+      <DomainCardsRow />
+
       <MetricModal open={modalOpen} onClose={() => setModalOpen(false)} metric={activeMetric} />
     </AppShell>
   );

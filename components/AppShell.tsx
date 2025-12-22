@@ -5,13 +5,13 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 
-import DashboardTopPanel from "@/components/dashboard/DashboardTopPanel";
 import { useAuth } from "@/lib/auth";
+type AppShellVariant = "default" | "plain";
 
 type Props = {
   children: ReactNode;
-  /** dashboard: CarbonCard 포함(기본) / plain: CarbonCard 없이 본문만 */
-  variant?: "dashboard" | "plain";
+  variant?: AppShellVariant;
+
 };
 
 type NavItem = { label: string; href: string; icon: "home" | "school" };
@@ -97,35 +97,26 @@ function safeInitial(name: string) {
   return first ?? "교";
 }
 
-export default function AppShell({ children, variant = "dashboard" }: Props) {
-  // ✅ 훅은 무조건 “항상” 같은 순서로 호출
+export default function AppShell({ children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading } = useAuth();
 
   const isLogin = pathname === "/login";
 
-  // ✅ 표시용 학교명 (로컬 저장) — 훅은 위에서 고정
   const [schoolName, setSchoolName] = useState("학교");
 
   useEffect(() => {
-    // login 화면에서도 훅은 돌지만, 의미 없는 작업은 스킵
     if (isLogin) return;
-
     try {
       const stored = localStorage.getItem("schoolName");
       if (stored && stored.trim()) setSchoolName(stored.trim());
-    } catch {
-      // SSR/브라우저 환경 차이 등 예외는 무시
-    }
+    } catch {}
   }, [isLogin]);
 
-  // ✅ 라우팅은 반드시 effect에서만
   useEffect(() => {
-    if (isLogin) return; // ✅ login에서는 redirect 로직 자체를 스킵
-    if (!loading && !user) {
-      router.replace("/login");
-    }
+    if (isLogin) return;
+    if (!loading && !user) router.replace("/login");
   }, [isLogin, loading, user, router]);
 
   const activeHref = useMemo(() => {
@@ -135,14 +126,8 @@ export default function AppShell({ children, variant = "dashboard" }: Props) {
 
   const initial = useMemo(() => safeInitial(schoolName), [schoolName]);
 
-  // ✅ 여기부터는 조건부 렌더(훅 호출 끝난 뒤라 안전)
-
-  // login 페이지는 AppShell을 타면 안 됨(혹시 감싸져 들어와도 안전하게 통과)
   if (isLogin) return <>{children}</>;
-
   if (loading) return <FullscreenFallback text="불러오는 중…" />;
-
-  // 미로그인: 이동 중 화면(빈 화면 방지)
   if (!user) return <FullscreenFallback text="로그인 페이지로 이동 중…" />;
 
   return (
@@ -286,9 +271,7 @@ export default function AppShell({ children, variant = "dashboard" }: Props) {
           </div>
         </div>
 
-        <div style={{ paddingRight: 18 }}>
-          {variant === "dashboard" ? <DashboardTopPanel>{children}</DashboardTopPanel> : <div>{children}</div>}
-        </div>
+        <div style={{ paddingRight: 18 }}>{children}</div>
       </div>
     </div>
   );

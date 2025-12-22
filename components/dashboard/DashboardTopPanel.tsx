@@ -1,3 +1,4 @@
+// components/dashboard/DashboardTopPanel.tsx
 "use client";
 
 import type { ReactNode } from "react";
@@ -12,22 +13,22 @@ export default function DashboardTopPanel({ children }: { children: ReactNode })
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "minmax(320px, 720px) 1fr",
+        gridTemplateColumns: "minmax(360px, 35%) 1fr",
         gap: GAP,
         alignItems: "stretch",
         width: "100%",
+        minWidth: 0,
       }}
     >
-      {/* 왼쪽 카드 */}
-      <CarbonCard
-        emittedKg={50}
-        reducedKg={40}
-        tempC={3}
-        heightPx={TOTAL_H}
-      />
+      {/* 왼쪽: 탄소 현황 카드 */}
+      <div style={{ minWidth: 0 }}>
+        <CarbonCard emittedKg={50} reducedKg={40} tempC={3} heightPx={TOTAL_H} />
+      </div>
 
-      {/* 오른쪽 영역 (로그인 / 대시보드 내용) */}
-      <div style={{ minWidth: 0 }}>{children}</div>
+      {/* 오른쪽: 에너지 2x2 등 */}
+      <div style={{ minWidth: 0 }}>
+        {children}
+      </div>
     </div>
   );
 }
