@@ -3,11 +3,11 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/AppShell";
-import DualRange from "@/components/DualRange";
+// DualRange는 단일 슬라이더로 전환하면서 사용하지 않음
 
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { deleteField, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 type TabKey = "basic" | "bce";
 
@@ -78,7 +78,7 @@ function Field({
   unit,
   value,
   onChange,
-  maxWidth = 260,
+  maxWidth = 170,
   disabled = false,
 }: {
   label: string;
@@ -91,69 +91,86 @@ function Field({
   return (
     <div
       style={{
-        display: "grid",
-        gridTemplateColumns: "150px 1fr",
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: 14,
+        padding: 12,
+        height: 56,
+        display: "flex",
         alignItems: "center",
-        gap: 12,
+        justifyContent: "space-between",
+        gap: 10,
+        background: disabled ? "#f9fafb" : "white",
+        opacity: disabled ? 0.8 : 1,
+        minWidth: 0,
       }}
     >
-      <div style={{ fontSize: 12, fontWeight: 900, color: "#0f172a" }}>{label}</div>
+      <div
+        style={{
+          fontSize: 13,
+          fontWeight: 900,
+          color: COLORS.text,
+          flex: "1 1 auto",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          minWidth: 0,
+        }}
+        title={label}
+      >
+        {label}
+      </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            maxWidth,
-            borderRadius: 12,
-            border: `1px solid ${COLORS.border}`,
-            background: disabled ? "#f9fafb" : "#fff",
-            padding: "10px 12px",
-            boxShadow: "0 1px 0 rgba(0,0,0,0.02)",
+      <div
+        style={{
+          position: "relative",
+          width: `min(${maxWidth}px, 45%)`,
+          minWidth: 120,
+          flex: "0 1 auto",
+        }}
+      >
+        <input
+          disabled={disabled}
+          type="number"
+          inputMode="numeric"
+          value={value === "" ? "" : String(value)}
+          onChange={(e) => {
+            const raw = e.target.value;
+            if (raw === "") return onChange("");
+            const n = Number(raw);
+            if (!Number.isNaN(n)) onChange(n);
           }}
-        >
-          <input
-            disabled={disabled}
-            type="number"
-            inputMode="numeric"
-            value={value === "" ? "" : String(value)}
-            onChange={(e) => {
-              const raw = e.target.value;
-              if (raw === "") return onChange("");
-              const n = Number(raw);
-              if (!Number.isNaN(n)) onChange(n);
-            }}
-            style={{
-              width: "100%",
-              border: "none",
-              outline: "none",
-              fontSize: 14,
-              fontWeight: 800,
-              color: disabled ? "#9ca3af" : COLORS.text,
-              background: "transparent",
-              paddingRight: unit ? 28 : 0, // ✅ unit 붙이기
-              textAlign: "right",
-              cursor: disabled ? "not-allowed" : "text",
-            }}
-          />
+          style={{
+            width: "100%",
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: 12,
+            outline: "none",
+            fontSize: 14,
+            fontWeight: 900,
+            color: disabled ? "#9ca3af" : COLORS.text,
+            background: disabled ? "#f9fafb" : "#fff",
+            padding: "8px 10px",
+            paddingRight: unit ? 32 : 10,
+            textAlign: "right",
+            cursor: disabled ? "not-allowed" : "text",
+          }}
+        />
 
-          {unit ? (
-            <span
-              style={{
-                position: "absolute",
-                right: 8, // ✅ 더 붙이기
-                top: "50%",
-                transform: "translateY(-50%)",
-                fontSize: 12,
-                fontWeight: 900,
-                color: COLORS.sub,
-                pointerEvents: "none",
-              }}
-            >
-              {unit}
-            </span>
-          ) : null}
-        </div>
+        {unit ? (
+          <span
+            style={{
+              position: "absolute",
+              right: 8,
+              top: "50%",
+              transform: "translateY(-50%)",
+              fontSize: 12,
+              fontWeight: 900,
+              color: COLORS.sub,
+              pointerEvents: "none",
+            }}
+          >
+            {unit}
+          </span>
+        ) : null}
       </div>
     </div>
   );
@@ -165,7 +182,7 @@ function Toggle({
   onChange,
   disabled = false,
 }: {
-  label: string;
+  label: React.ReactNode;
   value: boolean;
   onChange: (v: boolean) => void;
   disabled?: boolean;
@@ -185,7 +202,7 @@ function Toggle({
         opacity: disabled ? 0.8 : 1,
       }}
     >
-      <div style={{ fontSize: 13, fontWeight: 900, color: COLORS.text }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 900, color: COLORS.text, minWidth: 0 }}>{label}</div>
 
       <button
         type="button"
@@ -248,9 +265,8 @@ type SchoolDoc = {
     heating?: { min?: number; max?: number };
     checklist?: {
       planDoc?: boolean;
-      ecoCoolRoof?: boolean;
       smartStandby?: boolean;
-      insulation?: boolean;
+      hvacEfficiencyUpgrade?: boolean;
       board?: boolean;
     };
   };
@@ -269,10 +285,15 @@ type SchoolDoc = {
       student_club?: boolean;
       uniform_reuse?: boolean;
       sharing_market?: boolean;
+      local_farm_menu?: boolean;
       plant_based_meals?: boolean;
       local_foodbank?: boolean;
       data_literacy_edu?: boolean;
       community_link?: boolean;
+    };
+    behavior_checks?: {
+      carbon_data_sharing?: boolean;
+      device_charging_policy?: boolean;
     };
     environment?: {
       school_garden_area_m2?: number | null;
@@ -280,6 +301,17 @@ type SchoolDoc = {
       trash_processing_cost?: number | null;
       resource_recovery_revenue?: number | null;
       solar_generation_kwh?: number | null;
+    };
+    environment_checks?: {
+      solar_install?: boolean;
+      solar_generation_share?: boolean;
+      greywater_facility?: boolean;
+      rainwater_tank_use?: boolean;
+      low_flow_toilet?: boolean;
+      school_forest_manage?: boolean;
+      school_garden_operate?: boolean;
+      forest_experience_edu?: boolean;
+      facility_experience_edu?: boolean;
     };
   };
   updatedAt?: unknown;
@@ -317,20 +349,18 @@ export default function SchoolInfoPage() {
   const [buildingArea, setBuildingArea] = useState<number | "">("");
   const [playground, setPlayground] = useState<number | "">("");
 
-  const MIN = 20;
-  const MAX = 30;
+  const COOL_MIN = 18;
+  const COOL_MAX = 30;
+  const HEAT_MIN = 16;
+  const HEAT_MAX = 30;
   const STEP = 0.1;
-  const GAP = 0.1;
 
-  const [coolMin, setCoolMin] = useState(22.4);
-  const [coolMax, setCoolMax] = useState(26.9);
-  const [heatMin, setHeatMin] = useState(23.1);
-  const [heatMax, setHeatMax] = useState(27.0);
+  const [coolSet, setCoolSet] = useState(26.0);
+  const [heatSet, setHeatSet] = useState(20.0);
 
   const [planDoc, setPlanDoc] = useState(false);
-  const [ecoCoolRoof, setEcoCoolRoof] = useState(false);
   const [smartStandby, setSmartStandby] = useState(false);
-  const [insulation, setInsulation] = useState(false);
+  const [hvacEfficiencyUpgrade, setHvacEfficiencyUpgrade] = useState(false);
   const [board, setBoard] = useState(false);
 
   // ---------- bce ----------
@@ -346,16 +376,27 @@ export default function SchoolInfoPage() {
   const [studentClub, setStudentClub] = useState(false);
   const [uniformReuse, setUniformReuse] = useState(false);
   const [sharingMarket, setSharingMarket] = useState(false);
+  const [localFarmMenu, setLocalFarmMenu] = useState(false);
   const [plantBasedMeals, setPlantBasedMeals] = useState(false);
   const [localFoodbank, setLocalFoodbank] = useState(false);
   const [dataLiteracyEdu, setDataLiteracyEdu] = useState(false);
   const [communityLink, setCommunityLink] = useState(false);
 
-  const [schoolGardenArea, setSchoolGardenArea] = useState<number | "">("");
-  const [rainwaterTank, setRainwaterTank] = useState<number | "">("");
-  const [trashProcessingCost, setTrashProcessingCost] = useState<number | "">("");
-  const [resourceRecoveryRevenue, setResourceRecoveryRevenue] = useState<number | "">("");
-  const [solarGeneration, setSolarGeneration] = useState<number | "">("");
+  const [carbonDataSharing, setCarbonDataSharing] = useState(false);
+  const [deviceChargingPolicy, setDeviceChargingPolicy] = useState(false);
+
+  const [rainwaterTankL, setRainwaterTankL] = useState<number | null>(null); // 기존 용량(숨김용)
+  const [solarGenerationKwhLegacy, setSolarGenerationKwhLegacy] = useState<number | null>(null); // 기존 발전량(숨김용)
+
+  const [solarInstall, setSolarInstall] = useState(false);
+  const [solarGenerationShare, setSolarGenerationShare] = useState(false);
+  const [greywaterFacility, setGreywaterFacility] = useState(false);
+  const [rainwaterTankUse, setRainwaterTankUse] = useState(false);
+  const [lowFlowToilet, setLowFlowToilet] = useState(false);
+  const [schoolForestManage, setSchoolForestManage] = useState(false);
+  const [schoolGardenOperate, setSchoolGardenOperate] = useState(false);
+  const [forestExperienceEdu, setForestExperienceEdu] = useState(false);
+  const [facilityExperienceEdu, setFacilityExperienceEdu] = useState(false);
 
   const tabTitle = useMemo(() => (tab === "basic" ? "학교 기초정보" : "행동 · 문화 · 환경"), [tab]);
 
@@ -378,14 +419,11 @@ export default function SchoolInfoPage() {
         setClasses(typeof b.classes === "number" ? b.classes : "");
         setBuildingArea(typeof b.building_area_m2 === "number" ? b.building_area_m2 : "");
         setPlayground(typeof b.playground_m2 === "number" ? b.playground_m2 : "");
-        setCoolMin(typeof b.cooling?.min === "number" ? b.cooling.min : 22.4);
-        setCoolMax(typeof b.cooling?.max === "number" ? b.cooling.max : 26.9);
-        setHeatMin(typeof b.heating?.min === "number" ? b.heating.min : 23.1);
-        setHeatMax(typeof b.heating?.max === "number" ? b.heating.max : 27.0);
+        setCoolSet(typeof b.cooling?.min === "number" ? b.cooling.min : typeof b.cooling?.max === "number" ? b.cooling.max : 26.0);
+        setHeatSet(typeof b.heating?.min === "number" ? b.heating.min : typeof b.heating?.max === "number" ? b.heating.max : 20.0);
         setPlanDoc(!!b.checklist?.planDoc);
-        setEcoCoolRoof(!!b.checklist?.ecoCoolRoof);
         setSmartStandby(!!b.checklist?.smartStandby);
-        setInsulation(!!b.checklist?.insulation);
+        setHvacEfficiencyUpgrade(!!b.checklist?.hvacEfficiencyUpgrade);
         setBoard(!!b.checklist?.board);
 
         const c = data?.bce ?? {};
@@ -403,17 +441,36 @@ export default function SchoolInfoPage() {
         setStudentClub(!!checks.student_club);
         setUniformReuse(!!checks.uniform_reuse);
         setSharingMarket(!!checks.sharing_market);
+        setLocalFarmMenu(!!checks.local_farm_menu);
         setPlantBasedMeals(!!checks.plant_based_meals);
         setLocalFoodbank(!!checks.local_foodbank);
         setDataLiteracyEdu(!!checks.data_literacy_edu);
         setCommunityLink(!!checks.community_link);
 
+        const bChecks = c.behavior_checks ?? {};
+        setCarbonDataSharing(!!bChecks.carbon_data_sharing);
+        setDeviceChargingPolicy(!!bChecks.device_charging_policy);
+
         const env = c.environment ?? {};
-        setSchoolGardenArea(typeof env.school_garden_area_m2 === "number" ? env.school_garden_area_m2 : "");
-        setRainwaterTank(typeof env.rainwater_tank_l === "number" ? env.rainwater_tank_l : "");
-        setTrashProcessingCost(typeof env.trash_processing_cost === "number" ? env.trash_processing_cost : "");
-        setResourceRecoveryRevenue(typeof env.resource_recovery_revenue === "number" ? env.resource_recovery_revenue : "");
-        setSolarGeneration(typeof env.solar_generation_kwh === "number" ? env.solar_generation_kwh : "");
+        setRainwaterTankL(typeof env.rainwater_tank_l === "number" ? env.rainwater_tank_l : null);
+        setSolarGenerationKwhLegacy(typeof env.solar_generation_kwh === "number" ? env.solar_generation_kwh : null);
+
+        const eChecks = c.environment_checks ?? {};
+        setSolarInstall(
+          typeof eChecks.solar_install === "boolean"
+            ? eChecks.solar_install
+            : typeof env.solar_generation_kwh === "number" && env.solar_generation_kwh > 0,
+        );
+        setSolarGenerationShare(!!eChecks.solar_generation_share);
+        setGreywaterFacility(!!eChecks.greywater_facility);
+        setRainwaterTankUse(
+          typeof eChecks.rainwater_tank_use === "boolean" ? eChecks.rainwater_tank_use : (typeof env.rainwater_tank_l === "number" && env.rainwater_tank_l > 0),
+        );
+        setLowFlowToilet(!!eChecks.low_flow_toilet);
+        setSchoolForestManage(!!eChecks.school_forest_manage);
+        setSchoolGardenOperate(!!eChecks.school_garden_operate);
+        setForestExperienceEdu(!!eChecks.forest_experience_edu);
+        setFacilityExperienceEdu(!!eChecks.facility_experience_edu);
       } catch (e) {
         console.error(e);
       } finally {
@@ -452,14 +509,11 @@ export default function SchoolInfoPage() {
         setClasses(typeof b.classes === "number" ? b.classes : "");
         setBuildingArea(typeof b.building_area_m2 === "number" ? b.building_area_m2 : "");
         setPlayground(typeof b.playground_m2 === "number" ? b.playground_m2 : "");
-        setCoolMin(typeof b.cooling?.min === "number" ? b.cooling.min : 22.4);
-        setCoolMax(typeof b.cooling?.max === "number" ? b.cooling.max : 26.9);
-        setHeatMin(typeof b.heating?.min === "number" ? b.heating.min : 23.1);
-        setHeatMax(typeof b.heating?.max === "number" ? b.heating.max : 27.0);
+        setCoolSet(typeof b.cooling?.min === "number" ? b.cooling.min : typeof b.cooling?.max === "number" ? b.cooling.max : 26.0);
+        setHeatSet(typeof b.heating?.min === "number" ? b.heating.min : typeof b.heating?.max === "number" ? b.heating.max : 20.0);
         setPlanDoc(!!b.checklist?.planDoc);
-        setEcoCoolRoof(!!b.checklist?.ecoCoolRoof);
         setSmartStandby(!!b.checklist?.smartStandby);
-        setInsulation(!!b.checklist?.insulation);
+        setHvacEfficiencyUpgrade(!!b.checklist?.hvacEfficiencyUpgrade);
         setBoard(!!b.checklist?.board);
 
         const c = data?.bce ?? {};
@@ -477,17 +531,36 @@ export default function SchoolInfoPage() {
         setStudentClub(!!checks.student_club);
         setUniformReuse(!!checks.uniform_reuse);
         setSharingMarket(!!checks.sharing_market);
+        setLocalFarmMenu(!!checks.local_farm_menu);
         setPlantBasedMeals(!!checks.plant_based_meals);
         setLocalFoodbank(!!checks.local_foodbank);
         setDataLiteracyEdu(!!checks.data_literacy_edu);
         setCommunityLink(!!checks.community_link);
 
+        const bChecks = c.behavior_checks ?? {};
+        setCarbonDataSharing(!!bChecks.carbon_data_sharing);
+        setDeviceChargingPolicy(!!bChecks.device_charging_policy);
+
         const env = c.environment ?? {};
-        setSchoolGardenArea(typeof env.school_garden_area_m2 === "number" ? env.school_garden_area_m2 : "");
-        setRainwaterTank(typeof env.rainwater_tank_l === "number" ? env.rainwater_tank_l : "");
-        setTrashProcessingCost(typeof env.trash_processing_cost === "number" ? env.trash_processing_cost : "");
-        setResourceRecoveryRevenue(typeof env.resource_recovery_revenue === "number" ? env.resource_recovery_revenue : "");
-        setSolarGeneration(typeof env.solar_generation_kwh === "number" ? env.solar_generation_kwh : "");
+        setRainwaterTankL(typeof env.rainwater_tank_l === "number" ? env.rainwater_tank_l : null);
+        setSolarGenerationKwhLegacy(typeof env.solar_generation_kwh === "number" ? env.solar_generation_kwh : null);
+
+        const eChecks = c.environment_checks ?? {};
+        setSolarInstall(
+          typeof eChecks.solar_install === "boolean"
+            ? eChecks.solar_install
+            : typeof env.solar_generation_kwh === "number" && env.solar_generation_kwh > 0,
+        );
+        setSolarGenerationShare(!!eChecks.solar_generation_share);
+        setGreywaterFacility(!!eChecks.greywater_facility);
+        setRainwaterTankUse(
+          typeof eChecks.rainwater_tank_use === "boolean" ? eChecks.rainwater_tank_use : (typeof env.rainwater_tank_l === "number" && env.rainwater_tank_l > 0),
+        );
+        setLowFlowToilet(!!eChecks.low_flow_toilet);
+        setSchoolForestManage(!!eChecks.school_forest_manage);
+        setSchoolGardenOperate(!!eChecks.school_garden_operate);
+        setForestExperienceEdu(!!eChecks.forest_experience_edu);
+        setFacilityExperienceEdu(!!eChecks.facility_experience_edu);
       } finally {
         setLoadingDoc(false);
       }
@@ -501,22 +574,31 @@ export default function SchoolInfoPage() {
       const ref = doc(db, "schools", schoolId);
 
       if (tab === "basic") {
-        const payload: SchoolDoc = {
+        const payload: any = {
           basic: {
             students: students === "" ? null : students,
             staff: staff === "" ? null : staff,
             classes: classes === "" ? null : classes,
             building_area_m2: buildingArea === "" ? null : buildingArea,
             playground_m2: playground === "" ? null : playground,
-            cooling: { min: coolMin, max: coolMax },
-            heating: { min: heatMin, max: heatMax },
-            checklist: { planDoc, ecoCoolRoof, smartStandby, insulation, board },
+            // ✅ 단일 슬라이더 값: 기존 스키마(min/max)에 동일값으로 저장해 호환 유지
+            cooling: { min: coolSet, max: coolSet },
+            heating: { min: heatSet, max: heatSet },
+            checklist: {
+              planDoc,
+              smartStandby,
+              hvacEfficiencyUpgrade,
+              board,
+              // ✅ 기존 문서에 남아있을 수 있는 필드는 저장 시 삭제
+              ecoCoolRoof: deleteField(),
+              insulation: deleteField(),
+            },
           },
           updatedAt: serverTimestamp(),
         };
         await setDoc(ref, payload, { merge: true });
       } else {
-        const payload: SchoolDoc = {
+        const payload: any = {
           bce: {
             behavior_costs: {
               electricity_cost: electricityCost === "" ? null : electricityCost,
@@ -532,17 +614,45 @@ export default function SchoolInfoPage() {
               student_club: studentClub,
               uniform_reuse: uniformReuse,
               sharing_market: sharingMarket,
+              // ✅ 기존 문서에 남아있을 수 있는 필드는 저장 시 삭제
+              footprint_reduction_promise: deleteField(),
+              local_farm_menu: localFarmMenu,
               plant_based_meals: plantBasedMeals,
               local_foodbank: localFoodbank,
               data_literacy_edu: dataLiteracyEdu,
               community_link: communityLink,
             },
+            behavior_checks: {
+              carbon_data_sharing: carbonDataSharing,
+              // (이전 버전에서 저장된 필드가 남아있을 수 있어 저장 시 정리)
+              electricity_saving: deleteField(),
+              water_saving: deleteField(),
+              gas_saving: deleteField(),
+              peak_power_management: deleteField(),
+              hvac_temperature_compliance: deleteField(),
+              disposable_reduction: deleteField(),
+              paper_reduction: deleteField(),
+              recycling_separation: deleteField(),
+              device_charging_policy: deviceChargingPolicy,
+            },
+            // ✅ 기존 수치 데이터는 UI에서 제거: 저장 시 정리(삭제)
             environment: {
-              school_garden_area_m2: schoolGardenArea === "" ? null : schoolGardenArea,
-              rainwater_tank_l: rainwaterTank === "" ? null : rainwaterTank,
-              trash_processing_cost: trashProcessingCost === "" ? null : trashProcessingCost,
-              resource_recovery_revenue: resourceRecoveryRevenue === "" ? null : resourceRecoveryRevenue,
-              solar_generation_kwh: solarGeneration === "" ? null : solarGeneration,
+              school_garden_area_m2: deleteField(),
+              trash_processing_cost: deleteField(),
+              resource_recovery_revenue: deleteField(),
+              solar_generation_kwh: deleteField(),
+              rainwater_tank_l: deleteField(),
+            },
+            environment_checks: {
+              solar_install: solarInstall,
+              solar_generation_share: solarGenerationShare,
+              greywater_facility: greywaterFacility,
+              rainwater_tank_use: rainwaterTankUse,
+              low_flow_toilet: lowFlowToilet,
+              school_forest_manage: schoolForestManage,
+              school_garden_operate: schoolGardenOperate,
+              forest_experience_edu: forestExperienceEdu,
+              facility_experience_edu: facilityExperienceEdu,
             },
           },
           updatedAt: serverTimestamp(),
@@ -620,11 +730,11 @@ export default function SchoolInfoPage() {
                   <>
                     <Card>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 22 }}>
-                        <Field label="학생수" unit="명" value={students} onChange={setStudents} maxWidth={220} disabled={locked} />
-                        <Field label="교직원수" unit="명" value={staff} onChange={setStaff} maxWidth={220} disabled={locked} />
-                        <Field label="학급수" unit="개" value={classes} onChange={setClasses} maxWidth={220} disabled={locked} />
-                        <Field label="건물 면적" unit="㎡" value={buildingArea} onChange={setBuildingArea} maxWidth={240} disabled={locked} />
-                        <Field label="운동장 현황" unit="㎡" value={playground} onChange={setPlayground} maxWidth={240} disabled={locked} />
+                        <Field label="학생수" unit="명" value={students} onChange={setStudents} disabled={locked} />
+                        <Field label="교직원수" unit="명" value={staff} onChange={setStaff} disabled={locked} />
+                        <Field label="학급수" unit="개" value={classes} onChange={setClasses} disabled={locked} />
+                        <Field label="건물 면적" unit="㎡" value={buildingArea} onChange={setBuildingArea} disabled={locked} />
+                        <Field label="운동장 현황" unit="㎡" value={playground} onChange={setPlayground} disabled={locked} />
                       </div>
                     </Card>
 
@@ -632,42 +742,44 @@ export default function SchoolInfoPage() {
                       <div style={{ display: "grid", gap: 18, maxWidth: 360, margin: "0 auto" }}>
                         <div style={{ display: "grid", gap: 14, marginTop: 10 }}>
                           <Label>냉방 설정온도</Label>
-                          <DualRange
-                            min={MIN}
-                            max={MAX}
-                            step={STEP}
-                            gap={GAP}
-                            leftValue={coolMin}
-                            rightValue={coolMax}
-                            onChange={(l, r) => {
-                              setCoolMin(l);
-                              setCoolMax(r);
-                            }}
-                            formatValue={(v) => `${Number(v).toFixed(1)}°`}
-                            showBubbles
-                            showEnds={false}
-                            disabled={locked}
-                          />
+                          <div style={{ display: "grid", gap: 8 }}>
+                            <input
+                              type="range"
+                              min={COOL_MIN}
+                              max={COOL_MAX}
+                              step={STEP}
+                              value={coolSet}
+                              disabled={locked}
+                              onChange={(e) => setCoolSet(Number(e.target.value))}
+                              style={{ width: "100%" }}
+                            />
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 900, color: COLORS.sub }}>
+                              <span>{COOL_MIN}°</span>
+                              <span style={{ color: COLORS.text }}>{Number(coolSet).toFixed(1)}°</span>
+                              <span>{COOL_MAX}°</span>
+                            </div>
+                          </div>
                         </div>
 
                         <div style={{ display: "grid", gap: 14 }}>
                           <Label>난방 설정온도</Label>
-                          <DualRange
-                            min={MIN}
-                            max={MAX}
-                            step={STEP}
-                            gap={GAP}
-                            leftValue={heatMin}
-                            rightValue={heatMax}
-                            onChange={(l, r) => {
-                              setHeatMin(l);
-                              setHeatMax(r);
-                            }}
-                            formatValue={(v) => `${Number(v).toFixed(1)}°`}
-                            showBubbles
-                            showEnds={false}
-                            disabled={locked}
-                          />
+                          <div style={{ display: "grid", gap: 8 }}>
+                            <input
+                              type="range"
+                              min={HEAT_MIN}
+                              max={HEAT_MAX}
+                              step={STEP}
+                              value={heatSet}
+                              disabled={locked}
+                              onChange={(e) => setHeatSet(Number(e.target.value))}
+                              style={{ width: "100%" }}
+                            />
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 900, color: COLORS.sub }}>
+                              <span>{HEAT_MIN}°</span>
+                              <span style={{ color: COLORS.text }}>{Number(heatSet).toFixed(1)}°</span>
+                              <span>{HEAT_MAX}°</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </Card>
@@ -675,33 +787,73 @@ export default function SchoolInfoPage() {
                     <Card>
                       <div style={{ display: "grid", gap: 10 }}>
                         <Toggle label="계획서 작성" value={planDoc} onChange={setPlanDoc} disabled={locked} />
-                        <Toggle label="에코 쿨루프 시공" value={ecoCoolRoof} onChange={setEcoCoolRoof} disabled={locked} />
                         <Toggle label="스마트 대기전력 차단" value={smartStandby} onChange={setSmartStandby} disabled={locked} />
-                        <Toggle label="단열시설 설치" value={insulation} onChange={setInsulation} disabled={locked} />
-                        <Toggle label="게시판 설치" value={board} onChange={setBoard} disabled={locked} />
+                        <Toggle
+                          label={
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                효율 개선
+                              </span>
+                              <span
+                                title="에코쿨루프, 창문 단열필름, 실내조명 IoT 등"
+                                style={{
+                                  width: 18,
+                                  height: 18,
+                                  borderRadius: 999,
+                                  border: `1px solid ${COLORS.border}`,
+                                  color: COLORS.sub,
+                                  display: "grid",
+                                  placeItems: "center",
+                                  fontSize: 12,
+                                  fontWeight: 900,
+                                  flex: "0 0 auto",
+                                }}
+                              >
+                                i
+                              </span>
+                            </span>
+                          }
+                          value={hvacEfficiencyUpgrade}
+                          onChange={setHvacEfficiencyUpgrade}
+                          disabled={locked}
+                        />
+                        <Toggle label="탄소문해력 교육 게시판 운영" value={board} onChange={setBoard} disabled={locked} />
                       </div>
                     </Card>
                   </>
                 ) : (
                   <>
                     <Card title="행동영역">
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 22 }}>
-                        <Field label="전기세 지출" unit="원" value={electricityCost} onChange={setElectricityCost} disabled={locked} />
-                        <Field label="가스비 지출" unit="원" value={gasCost} onChange={setGasCost} disabled={locked} />
-                        <Field label="수도세 지출" unit="원" value={waterCost} onChange={setWaterCost} disabled={locked} />
-                        <Field label="A4용지 구입 비용" unit="원" value={a4PaperCost} onChange={setA4PaperCost} disabled={locked} />
-                        <Field label="일회용품 구입 비용" unit="원" value={disposableCost} onChange={setDisposableCost} disabled={locked} />
-                        <Field label="폐기물 처리 비용" unit="원" value={wasteDisposalCost} onChange={setWasteDisposalCost} disabled={locked} />
+                      <div style={{ display: "grid", gap: 14 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 22 }}>
+                          <Field label="전기세 지출" unit="원" value={electricityCost} onChange={setElectricityCost} disabled={locked} />
+                          <Field label="가스비 지출" unit="원" value={gasCost} onChange={setGasCost} disabled={locked} />
+                          <Field label="수도세 지출" unit="원" value={waterCost} onChange={setWaterCost} disabled={locked} />
+                          <Field label="A4용지 구입 비용" unit="원" value={a4PaperCost} onChange={setA4PaperCost} disabled={locked} />
+                          <Field label="일회용품 구입 비용" unit="원" value={disposableCost} onChange={setDisposableCost} disabled={locked} />
+                          <Field label="폐기물 처리 비용" unit="원" value={wasteDisposalCost} onChange={setWasteDisposalCost} disabled={locked} />
+                        </div>
+
+                        <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 12, display: "grid", gap: 10 }}>
+                          <Toggle label="탄소배출 데이터 공유" value={carbonDataSharing} onChange={setCarbonDataSharing} disabled={locked} />
+                          <Toggle
+                            label="디벗 충전 및 사용 관리 기준 수립"
+                            value={deviceChargingPolicy}
+                            onChange={setDeviceChargingPolicy}
+                            disabled={locked}
+                          />
+                        </div>
                       </div>
                     </Card>
 
-                    <Card title="운영">
+                    <Card title="문화영역">
                       <div style={{ display: "grid", gap: 10 }}>
                         <Toggle label="교사 연수 운영" value={teacherTraining} onChange={setTeacherTraining} disabled={locked} />
                         <Toggle label="학습공동체 운영" value={learningCommunity} onChange={setLearningCommunity} disabled={locked} />
                         <Toggle label="학생 동아리 운영" value={studentClub} onChange={setStudentClub} disabled={locked} />
                         <Toggle label="교복 물려주기 실시" value={uniformReuse} onChange={setUniformReuse} disabled={locked} />
                         <Toggle label="나눔장터 운영" value={sharingMarket} onChange={setSharingMarket} disabled={locked} />
+                        <Toggle label="지역농산물 활용 식단 운영" value={localFarmMenu} onChange={setLocalFarmMenu} disabled={locked} />
                         <Toggle label="채식 중심 식단 운영" value={plantBasedMeals} onChange={setPlantBasedMeals} disabled={locked} />
                         <Toggle label="지역 푸드뱅크 활용" value={localFoodbank} onChange={setLocalFoodbank} disabled={locked} />
                         <Toggle label="데이터 활용 교육 운영" value={dataLiteracyEdu} onChange={setDataLiteracyEdu} disabled={locked} />
@@ -710,12 +862,21 @@ export default function SchoolInfoPage() {
                     </Card>
 
                     <Card title="환경영역">
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 22 }}>
-                        <Field label="학교 정원 면적" unit="㎡" value={schoolGardenArea} onChange={setSchoolGardenArea} disabled={locked} />
-                        <Field label="빗물 저금통 용량" unit="L" value={rainwaterTank} onChange={setRainwaterTank} disabled={locked} />
-                        <Field label="쓰레기 처리 비용" unit="원" value={trashProcessingCost} onChange={setTrashProcessingCost} disabled={locked} />
-                        <Field label="자원 회수 수익" unit="원" value={resourceRecoveryRevenue} onChange={setResourceRecoveryRevenue} disabled={locked} />
-                        <Field label="태양광 발전량" unit="kWh" value={solarGeneration} onChange={setSolarGeneration} disabled={locked} />
+                      <div style={{ display: "grid", gap: 14 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 22 }}>
+                        </div>
+
+                        <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 12, display: "grid", gap: 10 }}>
+                          <Toggle label="태양광에너지 설비 설치" value={solarInstall} onChange={setSolarInstall} disabled={locked} />
+                          <Toggle label="태양광에너지 발전량 공유" value={solarGenerationShare} onChange={setSolarGenerationShare} disabled={locked} />
+                          <Toggle label="중수도 시설 설치·운영" value={greywaterFacility} onChange={setGreywaterFacility} disabled={locked} />
+                          <Toggle label="빗물저금통 설치 및 활용" value={rainwaterTankUse} onChange={setRainwaterTankUse} disabled={locked} />
+                          <Toggle label="절수형 화장실 설비 운영" value={lowFlowToilet} onChange={setLowFlowToilet} disabled={locked} />
+                          <Toggle label="학교숲 조성 및 관리" value={schoolForestManage} onChange={setSchoolForestManage} disabled={locked} />
+                          <Toggle label="학교 텃밭 조성 및 운영" value={schoolGardenOperate} onChange={setSchoolGardenOperate} disabled={locked} />
+                          <Toggle label="학교숲 활용 체험형 탄소중립 교육 운영" value={forestExperienceEdu} onChange={setForestExperienceEdu} disabled={locked} />
+                          <Toggle label="학교 시설 활용 체험형 탄소중립 교육 운영" value={facilityExperienceEdu} onChange={setFacilityExperienceEdu} disabled={locked} />
+                        </div>
                       </div>
                     </Card>
                   </>
@@ -899,3 +1060,4 @@ export default function SchoolInfoPage() {
     </AppShell>
   );
 }
+

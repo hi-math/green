@@ -99,7 +99,9 @@ export default function LoginPage() {
         >
           <section
             style={{
-              width: "min(85vw, 1150px)",
+              // ✅ 1200px에서도 이미지가 찌그러지거나 잘리지 않도록
+              //    카드 폭을 조금 더 여유 있게 + 좌측 이미지 컬럼은 이미지 비율(1300x1823)을 그대로 유지
+              width: "min(92vw, 1150px)",
               height: "min(85dvh, calc(100dvh - 20px))",
               // ✅ 작은 화면에서 넘치지 않도록 최소 높이 제거(스크롤 원흉)
               // minHeight: 520,  <-- 제거!
@@ -110,17 +112,27 @@ export default function LoginPage() {
               background: "rgba(255,255,255,0.82)",
               backdropFilter: "blur(10px)",
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: "auto minmax(360px, 1fr)",
             }}
           >
             {/* LEFT: ✅ 이미지 “만” / 오버레이/글씨 전부 삭제 */}
-            <div className="hidden md:block" style={{ position: "relative" }}>
+            <div
+              className="hidden md:block"
+              style={{
+                position: "relative",
+                height: "100%",
+                // ✅ 원본 이미지 비율 고정 (1300x1823) → 해상도에 따라 카드가 함께 리사이즈됨
+                aspectRatio: "1300 / 1823",
+                background: "#fff",
+              }}
+            >
               <Image
-                src="/images/login.jpg"
+                src="/images/login2.jpg"
                 alt="login"
                 fill
                 priority
-                style={{ objectFit: "fill" }} // ✅ 꽉 차게
+                sizes="(max-width: 768px) 0px, 45vw"
+                style={{ objectFit: "contain", objectPosition: "center" }} // ✅ 비율 유지 + 잘림 없음
               />
             </div>
 

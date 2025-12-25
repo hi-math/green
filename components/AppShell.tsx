@@ -100,11 +100,12 @@ function safeInitial(name: string) {
 export default function AppShell({ children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
 
   const isLogin = pathname === "/login";
 
   const [schoolName, setSchoolName] = useState("학교");
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     if (isLogin) return;
@@ -222,6 +223,38 @@ export default function AppShell({ children }: Props) {
                 {schoolName}
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={async () => {
+                if (loggingOut) return;
+                setLoggingOut(true);
+                try {
+                  try {
+                    localStorage.removeItem("schoolName");
+                  } catch {}
+                  await logout();
+                } finally {
+                  setLoggingOut(false);
+                  router.replace("/login");
+                }
+              }}
+              disabled={loggingOut}
+              style={{
+                marginTop: 10,
+                width: "100%",
+                height: 40,
+                borderRadius: 12,
+                border: `1px solid ${COLORS.border}`,
+                background: "white",
+                color: COLORS.sub,
+                fontWeight: 900,
+                cursor: loggingOut ? "not-allowed" : "pointer",
+                opacity: loggingOut ? 0.7 : 1,
+              }}
+            >
+              {loggingOut ? "로그아웃 중…" : "로그아웃"}
+            </button>
           </div>
         </div>
       </aside>

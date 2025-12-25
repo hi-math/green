@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "학교용 탄소중립 대시보드",
+  title: "탄소중립 실천 자가진단",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

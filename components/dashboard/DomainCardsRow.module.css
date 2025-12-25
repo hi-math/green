@@ -1,0 +1,42 @@
+.domainCardContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.gaugeWrap {
+  display: grid;
+  place-items: center;
+  padding-top: 4px;
+  flex: 0 0 auto;
+}
+
+.tasksWrap {
+  margin-top: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+@media (min-width: 1800px) {
+  .domainCardContent {
+    flex-direction: row;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .gaugeWrap {
+    padding-top: 0;
+    flex: 0 0 140px;
+    width: 140px;
+    align-content: center;
+  }
+
+  .tasksWrap {
+    margin-top: 0;
+    flex: 1 1 auto;
+  }
+}
+
+

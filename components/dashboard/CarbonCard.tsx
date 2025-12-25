@@ -5,6 +5,7 @@ export type CarbonCardProps = {
   reducedKg: number;
   tempC: number;
   heightPx?: number;
+  signalSumPercent?: number | null;
 };
 
 function formatNum(n: number) {
@@ -19,6 +20,7 @@ export default function CarbonCard({
   reducedKg,
   tempC,
   heightPx,
+  signalSumPercent,
 }: CarbonCardProps) {
   const border = "#E7E5E4";
   const text = "#0F172A";
@@ -26,13 +28,17 @@ export default function CarbonCard({
   const navy = "#1F3A8A";
 
   const COLORS: Record<Light, { on: string; off: string; label: string }> = {
-    red: { on: "#FF2A2A", off: "#3A0B0B", label: "위험" },
+    red: { on: "#FF2A2A", off: "#3A0B0B", label: "경고" },
     yellow: { on: "#FFC400", off: "#3A2F00", label: "주의" },
-    green: { on: "#00C853", off: "#083A22", label: "양호" },
+    green: { on: "#00C853", off: "#083A22", label: "좋음" },
   };
 
   function pickLight(): Light {
-    return "yellow";
+    const s = typeof signalSumPercent === "number" ? signalSumPercent : null;
+    if (s === null) return "yellow";
+    if (s >= 240) return "green";
+    if (s >= 150) return "yellow";
+    return "red";
   }
   const active = pickLight();
 
