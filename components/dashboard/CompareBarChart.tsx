@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef, useState } from "react";
+
 type Props = {
   height: number;
   months: string[];
@@ -9,6 +11,10 @@ type Props = {
   lastYearColor?: string;    // 작년 색(옅은 회색톤)
   currentSide?: "left" | "right"; // 올해 막대 위치
 };
+
+function clamp(n: number, lo: number, hi: number) {
+  return Math.max(lo, Math.min(hi, n));
+}
 
 export default function CompareBarChart({
   height = 140,
@@ -55,8 +61,31 @@ export default function CompareBarChart({
 
   const gridLines = 4;
 
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [hoverI, setHoverI] = useState<number | null>(null);
+
+  function clientToSvgX(clientX: number) {
+    const el = svgRef.current;
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    if (!r.width) return null;
+    return ((clientX - r.left) / r.width) * W;
+  }
+
+  function onMove(e: React.MouseEvent<SVGSVGElement>) {
+    const x = clientToSvgX(e.clientX);
+    if (x === null) return;
+    const i = Math.floor((x - padL) / groupW);
+    setHoverI(clamp(i, 0, n - 1));
+  }
+
+  function onLeave() {
+    setHoverI(null);
+  }
+
   return (
     <svg
+      ref={svgRef}
       viewBox={`0 0 ${W} ${H}`}
       width="100%"
       height="100%"
@@ -68,6 +97,8 @@ export default function CompareBarChart({
         background: "#FFFFFF",
       }}
       aria-label="compare bar chart"
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
     >
       {/* grid */}
       {Array.from({ length: gridLines }).map((_, i) => {
@@ -109,6 +140,41 @@ export default function CompareBarChart({
           </g>
         );
       })}
+
+      {/* hover tooltip */}
+      {hoverI !== null ? (() => {
+        const mo = M[hoverI] ?? "";
+        const c = C[hoverI] ?? 0;
+        const l = L[hoverI] ?? 0;
+        const cx = padL + hoverI * groupW + groupW / 2;
+
+        const tipW = 170;
+        const tipH = 44;
+        const tipX = clamp(cx - tipW / 2, padL, W - padR - tipW);
+        const tipY = padT + 6;
+
+        return (
+          <g>
+            <line x1={cx} x2={cx} y1={padT} y2={padT + chartH} stroke="#94A3B8" strokeWidth="1" opacity="0.45" />
+            <rect x={tipX} y={tipY} width={tipW} height={tipH} rx="12" ry="12" fill="#0f172a" opacity="0.92" />
+            <text x={tipX + 12} y={tipY + 18} style={{ fontSize: 11, fontWeight: 900, fill: "#ffffff" }}>
+              {mo}
+            </text>
+            <g>
+              <circle cx={tipX + 14} cy={tipY + 30} r="4" fill={lastFill} />
+              <text x={tipX + 24} y={tipY + 34} style={{ fontSize: 11, fontWeight: 800, fill: "#e2e8f0" }}>
+                작년: {l}
+              </text>
+            </g>
+            <g>
+              <circle cx={tipX + 90} cy={tipY + 30} r="4" fill={curFill} />
+              <text x={tipX + 100} y={tipY + 34} style={{ fontSize: 11, fontWeight: 800, fill: "#e2e8f0" }}>
+                올해: {c}
+              </text>
+            </g>
+          </g>
+        );
+      })() : null}
     </svg>
   );
 }

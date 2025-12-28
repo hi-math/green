@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AppShell from "@/components/AppShell";
 import { getFirebaseAuth } from "@/lib/firebase";
+import styles from "./login.module.css";
 
 
 export default function LoginPage() {
@@ -98,55 +99,25 @@ export default function LoginPage() {
           }}
         >
           <section
-            style={{
-              // ✅ 1200px에서도 이미지가 찌그러지거나 잘리지 않도록
-              //    카드 폭을 조금 더 여유 있게 + 좌측 이미지 컬럼은 이미지 비율(1300x1823)을 그대로 유지
-              width: "min(92vw, 1150px)",
-              height: "min(85dvh, calc(100dvh - 20px))",
-              // ✅ 작은 화면에서 넘치지 않도록 최소 높이 제거(스크롤 원흉)
-              // minHeight: 520,  <-- 제거!
-              borderRadius: 18,
-              overflow: "hidden",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 20px 50px rgba(15,23,42,0.12)",
-              background: "rgba(255,255,255,0.82)",
-              backdropFilter: "blur(10px)",
-              display: "grid",
-              gridTemplateColumns: "auto minmax(360px, 1fr)",
-            }}
+            className={styles.card}
           >
             {/* LEFT: ✅ 이미지 “만” / 오버레이/글씨 전부 삭제 */}
-            <div
-              className="hidden md:block"
-              style={{
-                position: "relative",
-                height: "100%",
-                // ✅ 원본 이미지 비율 고정 (1300x1823) → 해상도에 따라 카드가 함께 리사이즈됨
-                aspectRatio: "1300 / 1823",
-                background: "#fff",
-              }}
-            >
-              <Image
-                src="/images/login2.jpg"
-                alt="login"
-                fill
-                priority
-                sizes="(max-width: 768px) 0px, 45vw"
-                style={{ objectFit: "contain", objectPosition: "center" }} // ✅ 비율 유지 + 잘림 없음
-              />
+            <div className={styles.imageCol}>
+              <div className={styles.imageBox}>
+                <Image
+                  src="/images/login3.jpg"
+                  alt="login"
+                  fill
+                  priority
+                  sizes="(max-width: 900px) 70vw, 50vw"
+                  style={{ objectFit: "cover", objectPosition: "center" }}
+                />
+              </div>
             </div>
 
             {/* RIGHT */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "clamp(18px, 3vw, 40px)",
-                overflow: "hidden",
-              }}
-            >
-              <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420 }}>
+            <div className={styles.formCol}>
+              <form onSubmit={onSubmit} className={styles.formInner}>
                 <div
                   style={{
                     marginBottom: 32,
@@ -232,18 +203,6 @@ export default function LoginPage() {
                   </button>
                 </div>
 
-                <div
-                  className="md:hidden"
-                  style={{
-                    marginTop: 18,
-                    borderRadius: 16,
-                    border: "1px solid #e2e8f0",
-                    background: "#f8fafc",
-                    padding: 14,
-                  }}
-                >
-                  
-                </div>
               </form>
             </div>
           </section>

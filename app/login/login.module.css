@@ -1,0 +1,115 @@
+.card {
+  width: min(92vw, 980px);
+  /* desktop: card aspect ratio 2:1 */
+  aspect-ratio: 2 / 1;
+  max-height: calc(100dvh - 40px);
+
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.imageCol {
+  background: #fff;
+  display: block;
+}
+
+.imageBox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.formCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 3vw, 40px);
+  overflow: hidden;
+}
+
+.formInner {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Mobile safety: avoid an overly short 2:1 card that crushes the form */
+@media (max-width: 900px) {
+  .card {
+    aspect-ratio: auto;
+    height: min(88dvh, calc(100dvh - 20px));
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .imageCol {
+    background: transparent;
+    padding-top: 18px;
+    padding-left: 18px;
+    padding-right: 18px;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Square image even on mobile, but kept reasonably small */
+  .imageBox {
+    width: min(70vw, 280px);
+    aspect-ratio: 1 / 1;
+    height: auto;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+  }
+
+  .formCol {
+    align-items: flex-start;
+    overflow: auto;
+  }
+}
+
+.card {
+  width: min(86vw, 900px);
+  height: min(85dvh, calc(100dvh - 20px));
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  display: grid;
+  grid-template-columns: 1fr; /* mobile: 1 column so the form won't be squished */
+}
+
+.left {
+  display: none; /* mobile: hide image */
+  position: relative;
+  background: #f8fafc; /* shows behind image when using object-fit: contain */
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 3vw, 40px);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .card {
+    /* desktop: image(form) ≈ 5:5 */
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .left {
+    display: block;
+  }
+}
+
+
