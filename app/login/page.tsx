@@ -105,7 +105,7 @@ export default function LoginPage() {
             <div className={styles.imageCol}>
               <div className={styles.imageBox}>
                 <Image
-                  src="/images/login4.jpg"
+                  src="/images/login.jpg"
                   alt="login"
                   fill
                   priority
