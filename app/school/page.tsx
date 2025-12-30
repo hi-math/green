@@ -290,6 +290,8 @@ type SchoolDoc = {
       local_foodbank?: boolean;
       data_literacy_edu?: boolean;
       community_link?: boolean;
+      school_carbon_rules?: boolean;
+      food_waste_reduction?: boolean;
     };
     behavior_checks?: {
       carbon_data_sharing?: boolean;
@@ -304,14 +306,18 @@ type SchoolDoc = {
     };
     environment_checks?: {
       solar_install?: boolean;
-      solar_generation_share?: boolean;
       greywater_facility?: boolean;
       rainwater_tank_use?: boolean;
       low_flow_toilet?: boolean;
-      school_forest_manage?: boolean;
-      school_garden_operate?: boolean;
       forest_experience_edu?: boolean;
-      facility_experience_edu?: boolean;
+      facility_experience_edu?: boolean; // legacy
+      // ✅ v2 (환경영역 수정후 항목)
+      eco_cool_roof?: boolean;
+      window_insulation_film?: boolean;
+      forest_garden_manage?: boolean;
+      recycling_station_edu_program?: boolean;
+      solar_facility_edu_program?: boolean;
+      recycling_promo_edu_program?: boolean;
     };
   };
   updatedAt?: unknown;
@@ -373,6 +379,8 @@ export default function SchoolInfoPage() {
 
   const [teacherTraining, setTeacherTraining] = useState(false);
   const [learningCommunity, setLearningCommunity] = useState(false);
+  const [schoolCarbonRules, setSchoolCarbonRules] = useState(false);
+  const [foodWasteReduction, setFoodWasteReduction] = useState(false);
   const [studentClub, setStudentClub] = useState(false);
   const [uniformReuse, setUniformReuse] = useState(false);
   const [sharingMarket, setSharingMarket] = useState(false);
@@ -389,14 +397,16 @@ export default function SchoolInfoPage() {
   const [solarGenerationKwhLegacy, setSolarGenerationKwhLegacy] = useState<number | null>(null); // 기존 발전량(숨김용)
 
   const [solarInstall, setSolarInstall] = useState(false);
-  const [solarGenerationShare, setSolarGenerationShare] = useState(false);
   const [greywaterFacility, setGreywaterFacility] = useState(false);
   const [rainwaterTankUse, setRainwaterTankUse] = useState(false);
   const [lowFlowToilet, setLowFlowToilet] = useState(false);
-  const [schoolForestManage, setSchoolForestManage] = useState(false);
-  const [schoolGardenOperate, setSchoolGardenOperate] = useState(false);
+  const [forestGardenManage, setForestGardenManage] = useState(false);
+  const [ecoCoolRoof, setEcoCoolRoof] = useState(false);
+  const [windowInsulationFilm, setWindowInsulationFilm] = useState(false);
   const [forestExperienceEdu, setForestExperienceEdu] = useState(false);
-  const [facilityExperienceEdu, setFacilityExperienceEdu] = useState(false);
+  const [recyclingStationEduProgram, setRecyclingStationEduProgram] = useState(false);
+  const [solarFacilityEduProgram, setSolarFacilityEduProgram] = useState(false);
+  const [recyclingPromoEduProgram, setRecyclingPromoEduProgram] = useState(false);
 
   const tabTitle = useMemo(() => (tab === "basic" ? "학교 기초정보" : "행동 · 문화 · 환경"), [tab]);
 
@@ -438,6 +448,8 @@ export default function SchoolInfoPage() {
         const checks = c.culture_checks ?? {};
         setTeacherTraining(!!checks.teacher_training);
         setLearningCommunity(!!checks.learning_community);
+        setSchoolCarbonRules(!!checks.school_carbon_rules);
+        setFoodWasteReduction(!!checks.food_waste_reduction);
         setStudentClub(!!checks.student_club);
         setUniformReuse(!!checks.uniform_reuse);
         setSharingMarket(!!checks.sharing_market);
@@ -461,16 +473,18 @@ export default function SchoolInfoPage() {
             ? eChecks.solar_install
             : typeof env.solar_generation_kwh === "number" && env.solar_generation_kwh > 0,
         );
-        setSolarGenerationShare(!!eChecks.solar_generation_share);
         setGreywaterFacility(!!eChecks.greywater_facility);
         setRainwaterTankUse(
           typeof eChecks.rainwater_tank_use === "boolean" ? eChecks.rainwater_tank_use : (typeof env.rainwater_tank_l === "number" && env.rainwater_tank_l > 0),
         );
         setLowFlowToilet(!!eChecks.low_flow_toilet);
-        setSchoolForestManage(!!eChecks.school_forest_manage);
-        setSchoolGardenOperate(!!eChecks.school_garden_operate);
         setForestExperienceEdu(!!eChecks.forest_experience_edu);
-        setFacilityExperienceEdu(!!eChecks.facility_experience_edu);
+        setForestGardenManage(!!eChecks.forest_garden_manage || !!(eChecks as any).school_forest_manage || !!(eChecks as any).school_garden_operate);
+        setEcoCoolRoof(!!eChecks.eco_cool_roof);
+        setWindowInsulationFilm(!!eChecks.window_insulation_film);
+        setRecyclingStationEduProgram(!!eChecks.recycling_station_edu_program);
+        setSolarFacilityEduProgram(!!eChecks.solar_facility_edu_program);
+        setRecyclingPromoEduProgram(!!eChecks.recycling_promo_edu_program);
       } catch (e) {
         console.error(e);
       } finally {
@@ -528,6 +542,8 @@ export default function SchoolInfoPage() {
         const checks = c.culture_checks ?? {};
         setTeacherTraining(!!checks.teacher_training);
         setLearningCommunity(!!checks.learning_community);
+        setSchoolCarbonRules(!!checks.school_carbon_rules);
+        setFoodWasteReduction(!!checks.food_waste_reduction);
         setStudentClub(!!checks.student_club);
         setUniformReuse(!!checks.uniform_reuse);
         setSharingMarket(!!checks.sharing_market);
@@ -551,16 +567,18 @@ export default function SchoolInfoPage() {
             ? eChecks.solar_install
             : typeof env.solar_generation_kwh === "number" && env.solar_generation_kwh > 0,
         );
-        setSolarGenerationShare(!!eChecks.solar_generation_share);
         setGreywaterFacility(!!eChecks.greywater_facility);
         setRainwaterTankUse(
           typeof eChecks.rainwater_tank_use === "boolean" ? eChecks.rainwater_tank_use : (typeof env.rainwater_tank_l === "number" && env.rainwater_tank_l > 0),
         );
         setLowFlowToilet(!!eChecks.low_flow_toilet);
-        setSchoolForestManage(!!eChecks.school_forest_manage);
-        setSchoolGardenOperate(!!eChecks.school_garden_operate);
         setForestExperienceEdu(!!eChecks.forest_experience_edu);
-        setFacilityExperienceEdu(!!eChecks.facility_experience_edu);
+        setForestGardenManage(!!eChecks.forest_garden_manage || !!(eChecks as any).school_forest_manage || !!(eChecks as any).school_garden_operate);
+        setEcoCoolRoof(!!eChecks.eco_cool_roof);
+        setWindowInsulationFilm(!!eChecks.window_insulation_film);
+        setRecyclingStationEduProgram(!!eChecks.recycling_station_edu_program);
+        setSolarFacilityEduProgram(!!eChecks.solar_facility_edu_program);
+        setRecyclingPromoEduProgram(!!eChecks.recycling_promo_edu_program);
       } finally {
         setLoadingDoc(false);
       }
@@ -611,6 +629,8 @@ export default function SchoolInfoPage() {
             culture_checks: {
               teacher_training: teacherTraining,
               learning_community: learningCommunity,
+              school_carbon_rules: schoolCarbonRules,
+              food_waste_reduction: foodWasteReduction,
               student_club: studentClub,
               uniform_reuse: uniformReuse,
               sharing_market: sharingMarket,
@@ -645,16 +665,27 @@ export default function SchoolInfoPage() {
             },
             environment_checks: {
               solar_install: solarInstall,
-              solar_generation_share: solarGenerationShare,
               greywater_facility: greywaterFacility,
               rainwater_tank_use: rainwaterTankUse,
               low_flow_toilet: lowFlowToilet,
-              school_forest_manage: schoolForestManage,
-              school_garden_operate: schoolGardenOperate,
               forest_experience_edu: forestExperienceEdu,
-              facility_experience_edu: facilityExperienceEdu,
+              // ✅ v2
+              eco_cool_roof: ecoCoolRoof,
+              window_insulation_film: windowInsulationFilm,
+              forest_garden_manage: forestGardenManage,
+              recycling_station_edu_program: recyclingStationEduProgram,
+              solar_facility_edu_program: solarFacilityEduProgram,
+              recycling_promo_edu_program: recyclingPromoEduProgram,
+              // ✅ legacy cleanup
+              solar_generation_share: deleteField(),
+              school_forest_manage: deleteField(),
+              school_garden_operate: deleteField(),
+              facility_experience_edu: deleteField(),
             },
           },
+          // ✅ basic 탭 체크리스트(스마트 대기전력/게시판)를 환경영역에서도 조정 가능하도록 동기화
+          "basic.checklist.smartStandby": smartStandby,
+          "basic.checklist.board": board,
           updatedAt: serverTimestamp(),
         };
         await setDoc(ref, payload, { merge: true });
@@ -787,7 +818,7 @@ export default function SchoolInfoPage() {
                     <Card>
                       <div style={{ display: "grid", gap: 10 }}>
                         <Toggle label="계획서 작성" value={planDoc} onChange={setPlanDoc} disabled={locked} />
-                        <Toggle label="스마트 대기전력 차단" value={smartStandby} onChange={setSmartStandby} disabled={locked} />
+                        <Toggle label="스마트 대기전력 차단 장치" value={smartStandby} onChange={setSmartStandby} disabled={locked} />
                         <Toggle
                           label={
                             <span style={{ display: "inline-flex", alignItems: "center", gap: 6, minWidth: 0 }}>
@@ -801,15 +832,17 @@ export default function SchoolInfoPage() {
                                   height: 18,
                                   borderRadius: 999,
                                   border: `1px solid ${COLORS.border}`,
+                                  background: "#F8FAFC",
                                   color: COLORS.sub,
                                   display: "grid",
                                   placeItems: "center",
                                   fontSize: 12,
                                   fontWeight: 900,
+                                  lineHeight: 1,
                                   flex: "0 0 auto",
                                 }}
                               >
-                                i
+                                !
                               </span>
                             </span>
                           }
@@ -817,27 +850,27 @@ export default function SchoolInfoPage() {
                           onChange={setHvacEfficiencyUpgrade}
                           disabled={locked}
                         />
-                        <Toggle label="탄소문해력 교육 게시판 운영" value={board} onChange={setBoard} disabled={locked} />
+                        <Toggle label="탄소문해력 교육공간(게시판) 운영" value={board} onChange={setBoard} disabled={locked} />
                       </div>
                     </Card>
                   </>
                 ) : (
                   <>
                     <Card title="행동영역">
-                      <div style={{ display: "grid", gap: 14 }}>
+                      <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 12, display: "grid", gap: 14 }}>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 22 }}>
-                          <Field label="전기세 지출" unit="원" value={electricityCost} onChange={setElectricityCost} disabled={locked} />
-                          <Field label="가스비 지출" unit="원" value={gasCost} onChange={setGasCost} disabled={locked} />
-                          <Field label="수도세 지출" unit="원" value={waterCost} onChange={setWaterCost} disabled={locked} />
+                          <Field label="전기요금 지출" unit="원" value={electricityCost} onChange={setElectricityCost} disabled={locked} />
+                          <Field label="가스요금 지출" unit="원" value={gasCost} onChange={setGasCost} disabled={locked} />
+                          <Field label="수도요금 지출" unit="원" value={waterCost} onChange={setWaterCost} disabled={locked} />
                           <Field label="A4용지 구입 비용" unit="원" value={a4PaperCost} onChange={setA4PaperCost} disabled={locked} />
                           <Field label="일회용품 구입 비용" unit="원" value={disposableCost} onChange={setDisposableCost} disabled={locked} />
                           <Field label="폐기물 처리 비용" unit="원" value={wasteDisposalCost} onChange={setWasteDisposalCost} disabled={locked} />
                         </div>
 
                         <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 12, display: "grid", gap: 10 }}>
-                          <Toggle label="탄소배출 데이터 공유" value={carbonDataSharing} onChange={setCarbonDataSharing} disabled={locked} />
+                          <Toggle label="탄소배출 데이터 교내 구성원 공유" value={carbonDataSharing} onChange={setCarbonDataSharing} disabled={locked} />
                           <Toggle
-                            label="디벗 충전 및 사용 관리 기준 수립"
+                            label="디벗 충전 및 관리 기준 수립"
                             value={deviceChargingPolicy}
                             onChange={setDeviceChargingPolicy}
                             disabled={locked}
@@ -847,36 +880,74 @@ export default function SchoolInfoPage() {
                     </Card>
 
                     <Card title="문화영역">
-                      <div style={{ display: "grid", gap: 10 }}>
+                      <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 12, display: "grid", gap: 10 }}>
                         <Toggle label="교사 연수 운영" value={teacherTraining} onChange={setTeacherTraining} disabled={locked} />
-                        <Toggle label="학습공동체 운영" value={learningCommunity} onChange={setLearningCommunity} disabled={locked} />
+                        <Toggle label="교사 학습공동체 운영" value={learningCommunity} onChange={setLearningCommunity} disabled={locked} />
                         <Toggle label="학생 동아리 운영" value={studentClub} onChange={setStudentClub} disabled={locked} />
-                        <Toggle label="교복 물려주기 실시" value={uniformReuse} onChange={setUniformReuse} disabled={locked} />
+                        <Toggle label="학생 교육 프로그램·프로젝트 운영" value={dataLiteracyEdu} onChange={setDataLiteracyEdu} disabled={locked} />
+                        <Toggle label="학부모 및 지역 연계 프로그램 운영" value={communityLink} onChange={setCommunityLink} disabled={locked} />
+                        <Toggle
+                          label={
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                학교 차원 탄소저감 생활규칙 마련
+                              </span>
+                              <span
+                                title="물품구매, 등하교 방법 등"
+                                style={{
+                                  width: 18,
+                                  height: 18,
+                                  borderRadius: 999,
+                                  border: `1px solid ${COLORS.border}`,
+                                  display: "grid",
+                                  placeItems: "center",
+                                  lineHeight: 1,
+                                  flex: "0 0 auto",
+                                  background: "rgba(148, 163, 184, 0.18)",
+                                  boxShadow: "0 1px 2px rgba(15, 23, 42, 0.18)",
+                                }}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path
+                                    d="M12 7v7"
+                                    fill="none"
+                                    stroke={COLORS.sub}
+                                    strokeWidth="2.4"
+                                    strokeLinecap="round"
+                                  />
+                                  <circle cx="12" cy="18" r="1.35" fill={COLORS.sub} />
+                                </svg>
+                              </span>
+                            </span>
+                          }
+                          value={schoolCarbonRules}
+                          onChange={setSchoolCarbonRules}
+                          disabled={locked}
+                        />
                         <Toggle label="나눔장터 운영" value={sharingMarket} onChange={setSharingMarket} disabled={locked} />
-                        <Toggle label="지역농산물 활용 식단 운영" value={localFarmMenu} onChange={setLocalFarmMenu} disabled={locked} />
-                        <Toggle label="채식 중심 식단 운영" value={plantBasedMeals} onChange={setPlantBasedMeals} disabled={locked} />
+                        <Toggle label="교복물려주기 상시 운영" value={uniformReuse} onChange={setUniformReuse} disabled={locked} />
+                        <Toggle label="지역농산물 적극 활용" value={localFarmMenu} onChange={setLocalFarmMenu} disabled={locked} />
+                        <Toggle label="정기 채식 급식의 날 운영" value={plantBasedMeals} onChange={setPlantBasedMeals} disabled={locked} />
+                        <Toggle label="음식물쓰레기 줄이기 프로그램 운영" value={foodWasteReduction} onChange={setFoodWasteReduction} disabled={locked} />
                         <Toggle label="지역 푸드뱅크 활용" value={localFoodbank} onChange={setLocalFoodbank} disabled={locked} />
-                        <Toggle label="데이터 활용 교육 운영" value={dataLiteracyEdu} onChange={setDataLiteracyEdu} disabled={locked} />
-                        <Toggle label="지역사회 연계 활동" value={communityLink} onChange={setCommunityLink} disabled={locked} />
                       </div>
                     </Card>
 
                     <Card title="환경영역">
-                      <div style={{ display: "grid", gap: 14 }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 22 }}>
-                        </div>
-
-                        <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 12, display: "grid", gap: 10 }}>
-                          <Toggle label="태양광에너지 설비 설치" value={solarInstall} onChange={setSolarInstall} disabled={locked} />
-                          <Toggle label="태양광에너지 발전량 공유" value={solarGenerationShare} onChange={setSolarGenerationShare} disabled={locked} />
-                          <Toggle label="중수도 시설 설치·운영" value={greywaterFacility} onChange={setGreywaterFacility} disabled={locked} />
-                          <Toggle label="빗물저금통 설치 및 활용" value={rainwaterTankUse} onChange={setRainwaterTankUse} disabled={locked} />
-                          <Toggle label="절수형 화장실 설비 운영" value={lowFlowToilet} onChange={setLowFlowToilet} disabled={locked} />
-                          <Toggle label="학교숲 조성 및 관리" value={schoolForestManage} onChange={setSchoolForestManage} disabled={locked} />
-                          <Toggle label="학교 텃밭 조성 및 운영" value={schoolGardenOperate} onChange={setSchoolGardenOperate} disabled={locked} />
-                          <Toggle label="학교숲 활용 체험형 탄소중립 교육 운영" value={forestExperienceEdu} onChange={setForestExperienceEdu} disabled={locked} />
-                          <Toggle label="학교 시설 활용 체험형 탄소중립 교육 운영" value={facilityExperienceEdu} onChange={setFacilityExperienceEdu} disabled={locked} />
-                        </div>
+                      <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 12, display: "grid", gap: 10 }}>
+                        <Toggle label="태양광패널 활용 시설 설치" value={solarInstall} onChange={setSolarInstall} disabled={locked} />
+                        <Toggle label="에코 쿨루프 시공" value={ecoCoolRoof} onChange={setEcoCoolRoof} disabled={locked} />
+                        <Toggle label="창문단열필름 부착" value={windowInsulationFilm} onChange={setWindowInsulationFilm} disabled={locked} />
+                        <Toggle label="스마트 대기전력 차단 장치" value={smartStandby} onChange={setSmartStandby} disabled={locked} />
+                        <Toggle label="빗물저금통 설치" value={rainwaterTankUse} onChange={setRainwaterTankUse} disabled={locked} />
+                        <Toggle label="절수형 화장실 변기 사용" value={lowFlowToilet} onChange={setLowFlowToilet} disabled={locked} />
+                        <Toggle label="중수도 시설 설치" value={greywaterFacility} onChange={setGreywaterFacility} disabled={locked} />
+                        <Toggle label="학교 숲과 텃밭 책임 관리" value={forestGardenManage} onChange={setForestGardenManage} disabled={locked} />
+                        <Toggle label="학교 숲 활용 교육 프로그램 운영" value={forestExperienceEdu} onChange={setForestExperienceEdu} disabled={locked} />
+                        <Toggle label="분리배출장 활용 교육 프로그램 운영" value={recyclingStationEduProgram} onChange={setRecyclingStationEduProgram} disabled={locked} />
+                        <Toggle label="태양광발전시설 관련 교육 프로그램 운영" value={solarFacilityEduProgram} onChange={setSolarFacilityEduProgram} disabled={locked} />
+                        <Toggle label="분리배출 장려 교육프로그램 운영" value={recyclingPromoEduProgram} onChange={setRecyclingPromoEduProgram} disabled={locked} />
+                        <Toggle label="탄소문해력 교육공간(게시판) 운영" value={board} onChange={setBoard} disabled={locked} />
                       </div>
                     </Card>
                   </>

@@ -174,14 +174,15 @@ type CultureKey =
   | "local_foodbank"
   | "data_literacy_edu"
   | "community_link"
-  | "local_farm_menu";
+  | "local_farm_menu"
+  | "school_carbon_rules"
+  | "food_waste_reduction";
 
 type BehaviorKey =
   | "electricity_saving"
   | "gas_saving"
   | "water_saving"
   | "standby_power_cut"
-  | "hvac_efficiency_upgrade"
   | "hvac_temperature_compliance"
   | "disposable_reduction"
   | "paper_reduction"
@@ -193,62 +194,75 @@ const BEHAVIOR_DB_ITEMS: Array<{ key: BehaviorKey; label: string }> = [
   { key: "electricity_saving", label: "전기사용 절감" },
   { key: "gas_saving", label: "가스사용 절감" },
   { key: "water_saving", label: "수도사용 절감" },
-  { key: "standby_power_cut", label: "대기전력 차단" },
-  { key: "hvac_efficiency_upgrade", label: "냉·난방 에너지 효율 개선 설비 운영" },
-  { key: "hvac_temperature_compliance", label: "적정 냉·난방 온도 준수" },
-  { key: "disposable_reduction", label: "일회용품 사용 절감" },
-  { key: "paper_reduction", label: "종이 사용 절감" },
-  { key: "recycling_separation", label: "재활용 분리배출 이행" },
-  { key: "carbon_data_sharing", label: "탄소배출 데이터 공유" },
-  { key: "device_charging_policy", label: "디벗 충전 및 사용 관리 기준 수립" },
+  { key: "carbon_data_sharing", label: "탄소배출 데이터 교내 구성원 공유" },
+  { key: "standby_power_cut", label: "학교 차원 대기전력 차단 관리" },
+  { key: "device_charging_policy", label: "디벗 충전 및 관리 기준 수립" },
+  { key: "hvac_temperature_compliance", label: "장소·시설별 조명 및 냉난방 규칙 마련" },
+  { key: "disposable_reduction", label: "학교 차원 일회용품 사용 자제 약속" },
+  { key: "paper_reduction", label: "학교 차원 종이 사용 자제 약속" },
+  { key: "recycling_separation", label: "재활용을 위한 분리배출 규칙 준수" },
 ];
 
-const BEHAVIOR_TASKS: Array<{ label: string; keys: BehaviorKey[] }> = BEHAVIOR_DB_ITEMS.map((x) => ({
-  label: x.label,
-  keys: [x.key],
-}));
-
-const BEHAVIOR_ALWAYS_TASKS = ["피크 전력 적정 운영"] as const;
+// ✅ 행동영역 실천과제(표시 순서 고정): 스크린샷(수정후) 기준
+const BEHAVIOR_TASKS: Array<{ label: string; keys?: BehaviorKey[]; always?: boolean }> = [
+  { label: "전기사용 절감", keys: ["electricity_saving"] },
+  { label: "가스사용 절감", keys: ["gas_saving"] },
+  { label: "수도사용 절감", keys: ["water_saving"] },
+  { label: "탄소배출 데이터 교내 구성원 공유", keys: ["carbon_data_sharing"] },
+  { label: "겨울철 피크전력 확인 및 감축 관리", always: true },
+  { label: "학교 차원 대기전력 차단 관리", keys: ["standby_power_cut"] },
+  { label: "디벗 충전 및 관리 기준 수립", keys: ["device_charging_policy"] },
+  { label: "장소·시설별 조명 및 냉난방 규칙 마련", keys: ["hvac_temperature_compliance"] },
+  { label: "학교 차원 일회용품 사용 자제 약속", keys: ["disposable_reduction"] },
+  { label: "학교 차원 종이 사용 자제 약속", keys: ["paper_reduction"] },
+  { label: "재활용을 위한 분리배출 규칙 준수", keys: ["recycling_separation"] },
+];
 
 const ENV_TASKS = [
-  "태양광에너지 설비 설치",
-  "냉·난방 에너지 효율 개선 설비 운영",
-  "태양광에너지 발전량 공유",
-  "중수도 시설 설치·운영",
-  "학교숲 조성 및 관리",
-  "학교 텃밭 조성 및 운영",
-  "빗물저금통 설치 및 활용",
-  "절수형 화장실 설비 운영",
-  "탄소문해력 교육 게시판 운영",
-  "학교숲 활용 체험형 탄소중립 교육 운영",
-  "학교 시설 활용 체험형 탄소중립 교육 운영",
+  "태양광패널 활용 시설 설치",
+  "에코 쿨루프 시공",
+  "창문단열필름 부착",
+  "스마트 대기전력 차단 장치",
+  "빗물저금통 설치",
+  "절수형 화장실 변기 사용",
+  "중수도 시설 설치",
+  "학교 숲과 텃밭 책임 관리",
+  "학교 숲 활용 교육 프로그램 운영",
+  "분리배출장 활용 교육 프로그램 운영",
+  "태양광발전시설 관련 교육 프로그램 운영",
+  "분리배출 장려 교육프로그램 운영",
+  "탄소문해력 교육공간(게시판) 운영",
 ] as const;
 
 type EnvKey =
   | "solar_install"
-  | "hvac_efficiency_upgrade"
-  | "solar_generation_share"
+  | "eco_cool_roof"
+  | "window_insulation_film"
+  | "smart_standby_device"
   | "greywater_facility"
   | "rainwater_tank_use"
   | "low_flow_toilet"
-  | "school_forest_manage"
-  | "school_garden_operate"
-  | "carbon_literacy_board"
+  | "forest_garden_manage"
   | "forest_experience_edu"
-  | "facility_experience_edu";
+  | "recycling_station_edu_program"
+  | "solar_facility_edu_program"
+  | "recycling_promo_edu_program"
+  | "carbon_literacy_space";
 
 const ENV_DB_ITEMS: Array<{ key: EnvKey; label: (typeof ENV_TASKS)[number] }> = [
-  { key: "solar_install", label: "태양광에너지 설비 설치" },
-  { key: "hvac_efficiency_upgrade", label: "냉·난방 에너지 효율 개선 설비 운영" },
-  { key: "solar_generation_share", label: "태양광에너지 발전량 공유" },
-  { key: "greywater_facility", label: "중수도 시설 설치·운영" },
-  { key: "school_forest_manage", label: "학교숲 조성 및 관리" },
-  { key: "school_garden_operate", label: "학교 텃밭 조성 및 운영" },
-  { key: "rainwater_tank_use", label: "빗물저금통 설치 및 활용" },
-  { key: "low_flow_toilet", label: "절수형 화장실 설비 운영" },
-  { key: "carbon_literacy_board", label: "탄소문해력 교육 게시판 운영" },
-  { key: "forest_experience_edu", label: "학교숲 활용 체험형 탄소중립 교육 운영" },
-  { key: "facility_experience_edu", label: "학교 시설 활용 체험형 탄소중립 교육 운영" },
+  { key: "solar_install", label: "태양광패널 활용 시설 설치" },
+  { key: "eco_cool_roof", label: "에코 쿨루프 시공" },
+  { key: "window_insulation_film", label: "창문단열필름 부착" },
+  { key: "smart_standby_device", label: "스마트 대기전력 차단 장치" },
+  { key: "rainwater_tank_use", label: "빗물저금통 설치" },
+  { key: "low_flow_toilet", label: "절수형 화장실 변기 사용" },
+  { key: "greywater_facility", label: "중수도 시설 설치" },
+  { key: "forest_garden_manage", label: "학교 숲과 텃밭 책임 관리" },
+  { key: "forest_experience_edu", label: "학교 숲 활용 교육 프로그램 운영" },
+  { key: "recycling_station_edu_program", label: "분리배출장 활용 교육 프로그램 운영" },
+  { key: "solar_facility_edu_program", label: "태양광발전시설 관련 교육 프로그램 운영" },
+  { key: "recycling_promo_edu_program", label: "분리배출 장려 교육프로그램 운영" },
+  { key: "carbon_literacy_space", label: "탄소문해력 교육공간(게시판) 운영" },
 ];
 
 const BEHAVIOR_THRESHOLDS_PER_PERSON = {
@@ -260,27 +274,32 @@ const BEHAVIOR_THRESHOLDS_PER_PERSON = {
 
 const CULTURE_DB_ITEMS: Array<{ key: CultureKey; label: string }> = [
   { key: "teacher_training", label: "교사 연수 운영" },
-  { key: "learning_community", label: "학습공동체 운영" },
+  { key: "learning_community", label: "교사 학습공동체 운영" },
   { key: "student_club", label: "학생 동아리 운영" },
-  { key: "uniform_reuse", label: "교복 물려주기 실시" },
+  { key: "data_literacy_edu", label: "학생 교육 프로그램·프로젝트 운영" },
+  { key: "community_link", label: "학부모 및 지역 연계 프로그램 운영" },
   { key: "sharing_market", label: "나눔장터 운영" },
-  { key: "local_farm_menu", label: "지역농산물 활용 식단 운영" },
-  { key: "plant_based_meals", label: "채식 중심 식단 운영" },
+  { key: "uniform_reuse", label: "교복물려주기 상시 운영" },
+  { key: "school_carbon_rules", label: "학교 차원 탄소저감 생활규칙 마련" },
+  { key: "local_farm_menu", label: "지역농산물 적극 활용" },
+  { key: "plant_based_meals", label: "정기 채식 급식의 날 운영" },
+  { key: "food_waste_reduction", label: "음식물쓰레기 줄이기 프로그램 운영" },
   { key: "local_foodbank", label: "지역 푸드뱅크 활용" },
-  { key: "data_literacy_edu", label: "데이터 활용 교육 운영" },
-  { key: "community_link", label: "지역사회 연계 활동" },
 ];
 
 const CULTURE_TASKS: Array<{ label: string; keys?: CultureKey[] }> = [
-  { label: "교사 대상 전문 연수와 학습공동체 운영", keys: ["teacher_training", "learning_community"] },
-  { label: "탄소중립 실천 동아리를 운영", keys: ["student_club"] },
-  { label: "데이터 활용 탄소중립 실천 교육 프로그램과 프로젝트 운영", keys: ["data_literacy_edu"] },
-  { label: "학부모 및 지역사회 연계 프로그램운영", keys: ["community_link"] },
-  { label: "물건이나 학용품을 나누기 위한 학교 차원의 노력(나눔장터 등)을 한다.", keys: ["sharing_market"] },
-  { label: "지역농산물 활용 식단 운영", keys: ["local_farm_menu"] },
-  { label: "교복 물려주기 실시", keys: ["uniform_reuse"] },
+  { label: "교사 연수 운영", keys: ["teacher_training"] },
+  { label: "교사 학습공동체 운영", keys: ["learning_community"] },
+  { label: "학생 동아리 운영", keys: ["student_club"] },
+  { label: "학생 교육 프로그램·프로젝트 운영", keys: ["data_literacy_edu"] },
+  { label: "학부모 및 지역 연계 프로그램 운영", keys: ["community_link"] },
+  { label: "나눔장터 운영", keys: ["sharing_market"] },
+  { label: "교복물려주기 상시 운영", keys: ["uniform_reuse"] },
+  { label: "학교 차원 탄소저감 생활규칙 마련", keys: ["school_carbon_rules"] },
+  { label: "지역농산물 적극 활용", keys: ["local_farm_menu"] },
+  { label: "정기 채식 급식의 날 운영", keys: ["plant_based_meals"] },
+  { label: "음식물쓰레기 줄이기 프로그램 운영", keys: ["food_waste_reduction"] },
   { label: "지역 푸드뱅크 활용", keys: ["local_foodbank"] },
-  { label: "채식급식의 날 정기 운영", keys: ["plant_based_meals"] },
 ];
 
 
@@ -300,10 +319,6 @@ export default function DomainCardsRow({
   const [behaviorLoading, setBehaviorLoading] = useState(true);
   const [envChecks, setEnvChecks] = useState<Partial<Record<EnvKey, boolean>> | null>(null);
   const [envLoading, setEnvLoading] = useState(true);
-  const [envMetrics, setEnvMetrics] = useState<{
-    hvacEfficiencyUpgrade: boolean;
-    board: boolean;
-  }>({ hvacEfficiencyUpgrade: false, board: false });
   const [behaviorMetrics, setBehaviorMetrics] = useState<{
     totalPeople: number | null;
     electricityCost: number | null;
@@ -315,7 +330,6 @@ export default function DomainCardsRow({
     coolingSet: number | null;
     heatingSet: number | null;
     smartStandby: boolean;
-    hvacEfficiencyUpgrade: boolean;
   }>({
     totalPeople: null,
     electricityCost: null,
@@ -327,7 +341,6 @@ export default function DomainCardsRow({
     coolingSet: null,
     heatingSet: null,
     smartStandby: false,
-    hvacEfficiencyUpgrade: false,
   });
 
   useEffect(() => {
@@ -338,7 +351,6 @@ export default function DomainCardsRow({
       setBehaviorLoading(false);
       setEnvChecks(null);
       setEnvLoading(false);
-      setEnvMetrics({ hvacEfficiencyUpgrade: false, board: false });
       setBehaviorMetrics({
         totalPeople: null,
         electricityCost: null,
@@ -350,7 +362,6 @@ export default function DomainCardsRow({
         coolingSet: null,
         heatingSet: null,
         smartStandby: false,
-        hvacEfficiencyUpgrade: false,
       });
       return;
     }
@@ -385,34 +396,40 @@ export default function DomainCardsRow({
         const coolingSet = typeof data?.basic?.cooling?.min === "number" ? data.basic.cooling.min : null;
         const heatingSet = typeof data?.basic?.heating?.min === "number" ? data.basic.heating.min : null;
         const smartStandby = !!data?.basic?.checklist?.smartStandby;
-        const hvacEfficiencyUpgrade = !!data?.basic?.checklist?.hvacEfficiencyUpgrade;
+        const hvacEfficiencyUpgrade = !!data?.basic?.checklist?.hvacEfficiencyUpgrade; // legacy (현재 env 점수에는 사용하지 않음)
         const board = !!data?.basic?.checklist?.board;
 
-        const solarGenerationShare = !!eChecksRaw.solar_generation_share;
         const greywaterFacility = !!eChecksRaw.greywater_facility;
         const rainwaterTankUse = !!eChecksRaw.rainwater_tank_use;
         const lowFlowToilet = !!eChecksRaw.low_flow_toilet;
-        const schoolForestManage = !!eChecksRaw.school_forest_manage;
-        const schoolGardenOperate = !!eChecksRaw.school_garden_operate;
         const forestExperienceEdu = !!eChecksRaw.forest_experience_edu;
-        const facilityExperienceEdu = !!eChecksRaw.facility_experience_edu;
+        const facilityExperienceEdu = !!eChecksRaw.facility_experience_edu; // legacy
+
+        // ✅ v2 environment checks (신규 키 / 구버전 호환)
+        const ecoCoolRoof = !!eChecksRaw.eco_cool_roof;
+        const windowInsulationFilm = !!eChecksRaw.window_insulation_film;
+        const forestGardenManage = !!eChecksRaw.forest_garden_manage || !!eChecksRaw.school_forest_manage || !!eChecksRaw.school_garden_operate;
+        const recyclingStationEduProgram = !!eChecksRaw.recycling_station_edu_program || facilityExperienceEdu;
+        const solarFacilityEduProgram = !!eChecksRaw.solar_facility_edu_program;
+        const recyclingPromoEduProgram = !!eChecksRaw.recycling_promo_edu_program;
 
         setCultureChecks(cChecks);
         setBehaviorChecks(bChecks);
         setEnvChecks({
           solar_install: !!eChecksRaw.solar_install,
-          hvac_efficiency_upgrade: hvacEfficiencyUpgrade,
-          solar_generation_share: solarGenerationShare,
           greywater_facility: greywaterFacility,
           rainwater_tank_use: rainwaterTankUse,
           low_flow_toilet: lowFlowToilet,
-          school_forest_manage: schoolForestManage,
-          school_garden_operate: schoolGardenOperate,
-          carbon_literacy_board: board,
           forest_experience_edu: forestExperienceEdu,
-          facility_experience_edu: facilityExperienceEdu,
+          eco_cool_roof: ecoCoolRoof,
+          window_insulation_film: windowInsulationFilm,
+          forest_garden_manage: forestGardenManage,
+          recycling_station_edu_program: recyclingStationEduProgram,
+          solar_facility_edu_program: solarFacilityEduProgram,
+          recycling_promo_edu_program: recyclingPromoEduProgram,
+          smart_standby_device: smartStandby,
+          carbon_literacy_space: board,
         });
-        setEnvMetrics({ hvacEfficiencyUpgrade, board });
         setBehaviorMetrics({
           totalPeople,
           electricityCost,
@@ -424,7 +441,6 @@ export default function DomainCardsRow({
           coolingSet,
           heatingSet,
           smartStandby,
-          hvacEfficiencyUpgrade,
         });
         setCultureLoading(false);
         setBehaviorLoading(false);
@@ -438,7 +454,6 @@ export default function DomainCardsRow({
         setBehaviorLoading(false);
         setEnvChecks(null);
         setEnvLoading(false);
-        setEnvMetrics({ hvacEfficiencyUpgrade: false, board: false });
         setBehaviorMetrics({
           totalPeople: null,
           electricityCost: null,
@@ -450,7 +465,6 @@ export default function DomainCardsRow({
           coolingSet: null,
           heatingSet: null,
           smartStandby: false,
-          hvacEfficiencyUpgrade: false,
         });
       },
     );
@@ -504,7 +518,6 @@ export default function DomainCardsRow({
       gas_saving: gasSaving,
       water_saving: waterSaving,
       standby_power_cut: behaviorMetrics.smartStandby,
-      hvac_efficiency_upgrade: behaviorMetrics.hvacEfficiencyUpgrade,
       hvac_temperature_compliance: hvacTemperatureCompliance,
       disposable_reduction: disposableReduction,
       paper_reduction: paperReduction,
@@ -523,12 +536,12 @@ export default function DomainCardsRow({
 
     const out: string[] = [];
     for (const t of BEHAVIOR_TASKS) {
-      const done = t.keys.every((k) => !!behaviorCombinedChecks?.[k]);
+      if (t.always) {
+        if (!out.includes(t.label)) out.push(t.label);
+        continue;
+      }
+      const done = (t.keys ?? []).every((k) => !!behaviorCombinedChecks?.[k]);
       if (!done) out.push(t.label);
-    }
-    // ✅ 피크 전력 적정 운영: 데이터가 없어도 항상 실천과제로 표시
-    for (const t of BEHAVIOR_ALWAYS_TASKS) {
-      if (!out.includes(t)) out.push(t);
     }
     return out.length > 0 ? out : ["모두 체크되었습니다."];
   }, [behaviorCombinedChecks, behaviorLoading]);

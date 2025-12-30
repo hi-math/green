@@ -16,8 +16,8 @@ function formatNum(n: number) {
 type Light = "red" | "yellow" | "green";
 
 export default function CarbonCard({
-  emittedKg,
-  reducedKg,
+  emittedKg: _emittedKg,
+  reducedKg: _reducedKg,
   tempC,
   heightPx,
   signalSumPercent,
@@ -42,7 +42,7 @@ export default function CarbonCard({
   }
   const active = pickLight();
 
-  const L = 32;
+  const L = 40;
   const lightBase = {
     width: L,
     height: L,
@@ -95,7 +95,8 @@ export default function CarbonCard({
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          gap: 14,
+          alignItems: "center",
+          gap: 18,
         }}
       >
         {/* 탄소 신호등 문구 */}
@@ -109,13 +110,13 @@ export default function CarbonCard({
             lineHeight: 1,
           }}
         >
-          <span style={{ fontSize: 12, fontWeight: 900, color: sub }}>
+          <span style={{ fontSize: 16, fontWeight: 950, color: sub }}>
             탄소 신호등
           </span>
-          <span style={{ fontSize: 12, fontWeight: 900, color: sub }}>:</span>
+          <span style={{ fontSize: 16, fontWeight: 950, color: sub }}>:</span>
           <span
             style={{
-              fontSize: 22,
+              fontSize: 30,
               fontWeight: 950,
               letterSpacing: -0.6,
               color: COLORS[active].on,
@@ -132,15 +133,14 @@ export default function CarbonCard({
         {/* ===== Traffic Light ===== */}
         <div
           style={{
-            height: 62,
-            width: 170,
-            margin: "0 auto",
+            height: 78,
+            width: 210,
             borderRadius: 14,
             background: "#111111",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 10,
+            gap: 12,
           }}
         >
           <div
@@ -166,45 +166,6 @@ export default function CarbonCard({
               boxShadow: active === "green" ? glow("green") : offLens(),
             }}
           />
-        </div>
-
-        {/* 신호등 ↔ 수치 간 여백 */}
-        <div style={{ height: 18 }} />
-
-        {/* ===== Metrics ===== */}
-        <div
-          style={{
-            border: `1px solid ${border}`,
-            borderRadius: 14,
-            padding: 14,
-            background: "#FFFFFF",
-            display: "grid",
-            gap: 10,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-            <div style={{ fontSize: 13, color: sub, fontWeight: 800, minWidth: 64 }}>
-              탄소 발생
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 950, color: text, letterSpacing: -0.4 }}>
-              {formatNum(emittedKg)}
-            </div>
-            <div style={{ fontSize: 13, color: sub, fontWeight: 800 }}>
-              kgCO₂e
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-            <div style={{ fontSize: 13, color: sub, fontWeight: 800, minWidth: 64 }}>
-              탄소 절감
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 950, color: "#166534", letterSpacing: -0.4 }}>
-              {formatNum(reducedKg)}
-            </div>
-            <div style={{ fontSize: 13, color: sub, fontWeight: 800 }}>
-              kgCO₂e
-            </div>
-          </div>
         </div>
       </div>
     </div>
