@@ -90,6 +90,98 @@ function MegaphoneIcon() {
   );
 }
 
+type NoticeItem = {
+  title: string;
+  body?: string;
+};
+
+function NoticeModal({
+  open,
+  notice,
+  onClose,
+}: {
+  open: boolean;
+  notice: NoticeItem | null;
+  onClose: () => void;
+}) {
+  if (!open || !notice) return null;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(15, 23, 42, 0.45)",
+        display: "grid",
+        placeItems: "center",
+        padding: 16,
+        zIndex: 60,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "min(720px, 94vw)",
+          background: "white",
+          borderRadius: 18,
+          border: `1px solid ${COLORS.border}`,
+          boxShadow: "0 20px 60px rgba(0,0,0,0.22)",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 12,
+            padding: 16,
+            borderBottom: `1px solid ${COLORS.border}`,
+            background: "rgba(255,255,255,0.92)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <div style={{ fontSize: 16, fontWeight: 950, color: COLORS.text, letterSpacing: -0.2 }}>공지사항</div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              border: `1px solid ${COLORS.border}`,
+              background: "#f8fafc",
+              borderRadius: 12,
+              padding: "8px 10px",
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+          >
+            닫기
+          </button>
+        </div>
+
+        <div style={{ padding: 16, display: "grid", gap: 10 }}>
+          <div style={{ fontSize: 15, fontWeight: 950, color: COLORS.text }}>{notice.title}</div>
+          {notice.body ? (
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: COLORS.sub,
+                lineHeight: 1.55,
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {notice.body}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function safeInitial(name: string) {
   const t = (name ?? "").trim();
   if (!t) return "교";
@@ -107,6 +199,28 @@ export default function AppShell({ children }: Props) {
   const [schoolName, setSchoolName] = useState("학교");
   const [loggingOut, setLoggingOut] = useState(false);
 
+  const notices = useMemo<NoticeItem[]>(
+    () => [
+      {
+        title: "서울 학교 탄소중립 실행지원도구 개발 발표회",
+        body: "서울 학교 탄소중립 실행지원도구 개발 발표회 안내입니다.\n\n- 프로그램: 도구 소개, 시연, 질의응답\n- 대상: 학교 담당자/교직원\n- 문의: 운영팀",
+      },
+      {
+        title: "시스템 점검 안내 (오늘 18:00~19:00)",
+        body: "점검 시간에는 일부 기능이 일시적으로 느리거나 제한될 수 있습니다.",
+      },
+      {
+        title: "12월 데이터 반영 완료 안내",
+        body: "전기/수도/가스/태양광 데이터가 12월 기준으로 업데이트되었습니다.",
+      },
+    ],
+    [],
+  );
+  // ✅ 롤링은 항상 "위로"만: 마지막 -> 처음으로 넘어갈 때도 점프 없이 자연스럽게
+  const [noticePos, setNoticePos] = useState(0); // 0..n (n은 복제된 마지막)
+  const [noticeNoAnim, setNoticeNoAnim] = useState(false);
+  const [noticeModalOpen, setNoticeModalOpen] = useState(false);
+
   useEffect(() => {
     if (isLogin) return;
     try {
@@ -114,6 +228,31 @@ export default function AppShell({ children }: Props) {
       if (stored && stored.trim()) setSchoolName(stored.trim());
     } catch {}
   }, [isLogin]);
+
+  useEffect(() => {
+    if (isLogin) return;
+    const n = notices.length;
+    if (n <= 1) return;
+    const id = window.setInterval(() => {
+      setNoticePos((x) => x + 1);
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [isLogin, notices.length]);
+
+  useEffect(() => {
+    if (isLogin) return;
+    const n = notices.length;
+    if (n <= 1) return;
+    if (noticePos !== n) return;
+
+    const t = window.setTimeout(() => {
+      setNoticeNoAnim(true);
+      setNoticePos(0);
+      window.requestAnimationFrame(() => setNoticeNoAnim(false));
+    }, 460); // transition(420ms) + buffer
+
+    return () => window.clearTimeout(t);
+  }, [isLogin, noticePos, notices.length]);
 
   useEffect(() => {
     if (isLogin) return;
@@ -290,22 +429,59 @@ export default function AppShell({ children }: Props) {
             <MegaphoneIcon />
           </div>
 
-          <div
+          <button
+            type="button"
+            onClick={() => setNoticeModalOpen(true)}
             style={{
-              fontSize: 13,
-              fontWeight: 700,
-              color: "#334155",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
+              flex: 1,
+              minWidth: 0,
+              textAlign: "left",
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
             }}
+            aria-label="공지사항 열기"
+            title="클릭해서 자세히 보기"
           >
-            탄소중립 실천 데이터가 업데이트되었습니다.
-          </div>
+            <div style={{ height: 20, overflow: "hidden" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridAutoRows: "20px",
+                  transform: `translateY(-${noticePos * 20}px)`,
+                  transition: noticeNoAnim ? "none" : "transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+                }}
+              >
+                {[...notices, notices[0]].filter(Boolean).map((n, i) => (
+                  <div
+                    key={`${n.title}-${i}`}
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 800,
+                      color: "#334155",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      lineHeight: "20px",
+                    }}
+                  >
+                    {n.title}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </button>
         </div>
 
         <div style={{ paddingRight: 18 }}>{children}</div>
       </div>
+
+      <NoticeModal
+        open={noticeModalOpen}
+        notice={notices[noticePos % Math.max(1, notices.length)] ?? null}
+        onClose={() => setNoticeModalOpen(false)}
+      />
     </div>
   );
 }

@@ -98,14 +98,12 @@ export default function LoginPage() {
             overflow: "hidden",
           }}
         >
-          <section
-            className={styles.card}
-          >
+          <section className={styles.card}>
             {/* LEFT: ✅ 이미지 “만” / 오버레이/글씨 전부 삭제 */}
-            <div className={styles.imageCol}>
-              <div className={styles.imageBox}>
+            <div className={styles.leftCol}>
+              <div className={styles.imageSquare}>
                 <Image
-                  src="/images/login.jpg"
+                  src="/images/login5.jpg"
                   alt="login"
                   fill
                   priority
@@ -116,7 +114,7 @@ export default function LoginPage() {
             </div>
 
             {/* RIGHT */}
-            <div className={styles.formCol}>
+            <div className={styles.rightCol}>
               <form onSubmit={onSubmit} className={styles.formInner}>
                 <div
                   style={{
@@ -203,6 +201,18 @@ export default function LoginPage() {
                   </button>
                 </div>
 
+                <div
+                  className="md:hidden"
+                  style={{
+                    marginTop: 18,
+                    borderRadius: 16,
+                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
+                    padding: 14,
+                  }}
+                >
+                  
+                </div>
               </form>
             </div>
           </section>

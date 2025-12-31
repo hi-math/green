@@ -32,6 +32,10 @@ function lastNMonthsLabels(n: number) {
   return out;
 }
 
+function formatKoreanMonthDay(d: Date) {
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+}
+
 function mockMonthValues(n: number) {
   const now = new Date();
   // stable-ish numbers tied to month index
@@ -88,6 +92,7 @@ export default function MetricModal({
   const { user } = useAuth();
   const schoolId = useMemo(() => user?.email?.split("@")[0] ?? null, [user?.email]);
   const [district, setDistrict] = useState<string | null>(null);
+  const todayLabel = useMemo(() => formatKoreanMonthDay(new Date()), []);
 
   useEffect(() => {
     if (!open || metric !== "electric") return;
@@ -196,11 +201,11 @@ export default function MetricModal({
                 alignItems: "start",
               }}
             >
-              <SectionCard title="12월 28일 시간대별 전력사용량">
+              <SectionCard title={`${todayLabel} 시간대별 전력사용량`}>
                 <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
                   <span style={{ fontSize: 11, fontWeight: 900, color: "#64748b" }}>kWh</span>
                 </div>
-                <HourlyUsageChart height={260} dateLabel="12월 28일" />
+                <HourlyUsageChart height={260} dateLabel={todayLabel} />
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
