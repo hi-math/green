@@ -5,8 +5,8 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 로그인 페이지/정적 리소스는 통과
-  if (pathname.startsWith("/login") || pathname.startsWith("/_next") || pathname.startsWith("/favicon")) {
+  // 정적 리소스는 통과
+  if (pathname.startsWith("/_next") || pathname.startsWith("/favicon")) {
     return NextResponse.next();
   }
 

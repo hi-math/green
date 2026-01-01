@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import type { MetricKey } from "@/components/dashboard/types";
 import HourlyUsageChart from "@/components/dashboard/HourlyUsageChart";
 import MonthlyElectricComboChart from "@/components/dashboard/MonthlyElectricComboChart";
-import { useAuth } from "@/lib/auth";
 import { getFirebaseDb } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -84,13 +83,13 @@ export default function MetricModal({
   open,
   onClose,
   metric,
+  schoolId,
 }: {
   open: boolean;
   onClose: () => void;
   metric: MetricKey;
+  schoolId: string | null;
 }) {
-  const { user } = useAuth();
-  const schoolId = useMemo(() => user?.email?.split("@")[0] ?? null, [user?.email]);
   const [district, setDistrict] = useState<string | null>(null);
   const todayLabel = useMemo(() => formatKoreanMonthDay(new Date()), []);
 

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import styles from "./DomainCardsRow.module.css";
-import { useAuth } from "@/lib/auth";
 import { getFirebaseDb } from "@/lib/firebase";
 
 const GAP = 12;
@@ -305,14 +304,12 @@ const CULTURE_TASKS: Array<{ label: string; keys?: CultureKey[] }> = [
 
 
 export default function DomainCardsRow({
+  schoolId,
   onScoresChange,
 }: {
+  schoolId: string | null;
   onScoresChange?: (scores: { behavior: number; culture: number; env: number; sum: number }) => void;
 }) {
-  const { user } = useAuth();
-
-  const schoolId = useMemo(() => user?.email?.split("@")[0] ?? null, [user]);
-
   const [cultureChecks, setCultureChecks] = useState<Partial<Record<CultureKey, boolean>> | null>(null);
   const [cultureLoading, setCultureLoading] = useState(true);
   const [behaviorChecks, setBehaviorChecks] = useState<Partial<Record<BehaviorKey, boolean>> | null>(null);
