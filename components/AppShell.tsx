@@ -220,6 +220,7 @@ export default function AppShell({ children }: Props) {
   const [noticePos, setNoticePos] = useState(0); // 0..n (n은 복제된 마지막)
   const [noticeNoAnim, setNoticeNoAnim] = useState(false);
   const [noticeModalOpen, setNoticeModalOpen] = useState(false);
+  const [noticePaused, setNoticePaused] = useState(false);
 
   useEffect(() => {
     if (isLogin) return;
@@ -231,13 +232,14 @@ export default function AppShell({ children }: Props) {
 
   useEffect(() => {
     if (isLogin) return;
+    if (noticePaused) return; // ✅ 공지 클릭(모달 오픈) 시 롤링 정지
     const n = notices.length;
     if (n <= 1) return;
     const id = window.setInterval(() => {
       setNoticePos((x) => x + 1);
     }, 5000);
     return () => window.clearInterval(id);
-  }, [isLogin, notices.length]);
+  }, [isLogin, noticePaused, notices.length]);
 
   useEffect(() => {
     if (isLogin) return;
@@ -431,7 +433,10 @@ export default function AppShell({ children }: Props) {
 
           <button
             type="button"
-            onClick={() => setNoticeModalOpen(true)}
+            onClick={() => {
+              setNoticePaused(true);
+              setNoticeModalOpen(true);
+            }}
             style={{
               flex: 1,
               minWidth: 0,
@@ -480,7 +485,10 @@ export default function AppShell({ children }: Props) {
       <NoticeModal
         open={noticeModalOpen}
         notice={notices[noticePos % Math.max(1, notices.length)] ?? null}
-        onClose={() => setNoticeModalOpen(false)}
+        onClose={() => {
+          setNoticeModalOpen(false);
+          setNoticePaused(false);
+        }}
       />
     </div>
   );
