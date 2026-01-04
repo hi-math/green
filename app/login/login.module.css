@@ -1,0 +1,76 @@
+/* Login layout */
+
+.card {
+  /* ✅ 디스플레이/해상도와 무관하게 “좌/우 정사각형 2개(= 2:1)” 유지 */
+  width: min(92vw, calc((100dvh - 40px) * 2));
+  aspect-ratio: 2 / 1; /* 왼쪽 1 : 오른쪽 1 이 각각 정사각형 */
+  max-height: calc(100dvh - 40px);
+
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+
+  display: grid;
+  /* ✅ 왼쪽 1 / 오른쪽 1 */
+  grid-template-columns: 1fr 1fr;
+}
+
+.leftCol {
+  display: flex;
+  padding: 0; /* ✅ 이미지가 영역을 꽉 채우도록 */
+  background: #fff;
+}
+
+.imageSquare {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* ✅ 카드 자체가 라운딩/클립을 담당하므로 내부는 꽉 채움 */
+  border: none;
+  border-radius: 0;
+  background: #fff;
+}
+
+.rightCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 3vw, 40px);
+  overflow: auto; /* ✅ 폼이 길면 내부만 스크롤 */
+}
+
+.formInner {
+  width: 100%;
+  max-width: 420px;
+}
+
+@media (max-width: 900px) {
+  .card {
+    grid-template-columns: 1fr; /* ✅ 모바일: 1 column */
+    grid-template-rows: auto 1fr;
+    aspect-ratio: auto; /* 모바일은 2:1 고정 해제 */
+    height: min(88dvh, calc(100dvh - 20px));
+  }
+
+  .leftCol {
+    padding: 18px 18px 0 18px;
+    background: transparent;
+  }
+
+  .imageSquare {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9; /* ✅ 모바일에서는 너무 커지지 않게 */
+    border-radius: 16px;
+    border: 0.6px solid rgba(226, 232, 240, 0.9);
+  }
+
+  .rightCol {
+    align-items: flex-start;
+    overflow: auto;
+  }
+}
